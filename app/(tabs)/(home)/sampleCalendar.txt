@@ -1,11 +1,3 @@
-import { withTheme } from "react-native-paper"
-import { View } from "react-native"
-import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
-
-function Home({ theme }) {
-    return (
-        <View>
-
 <Calendar
   // Initially visible month. Default = now
   initialDate={'2012-03-01'}
@@ -59,9 +51,3 @@ function Home({ theme }) {
   // Enable the option to swipe between months. Default = false
   enableSwipeMonths={true}
 />
-
-        </View>
-    )
-}
-
-export default withTheme(Home)
