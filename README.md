@@ -4,7 +4,7 @@ The Upcycle Build application aims to assist those who work in the reuse industr
 2) A receiving section for reuse center employees to manage their inventory
 3) An upcycling section that tracks the amount of materials diverted from the waste stream to support funding efforts for reuse centers
 
-Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for such a fast-paced work environment.
+Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for the fast-paced environment they work in.
 
 # Release Notes
 ## v0.0.0
