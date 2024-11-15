@@ -1,11 +1,23 @@
-import { View, Text } from "react-native"
+import { View } from "react-native"
 import { withTheme } from "react-native-paper"
+import { Stack } from "expo-router"
 
 function MaterialsLayout({ theme }) {
-
     return (
-        <View>
-            <Text>Hello, Atlanta!</Text>
+        <View
+            style={{
+                flex: 1,
+                backgroundColor: theme.colors.background,
+            }}
+        >
+            <Stack>
+                <Stack.Screen
+                    name="index"
+                    options={{
+                        title: "Materials",
+                    }}
+                /> 
+            </Stack>
         </View>
     )
 }
