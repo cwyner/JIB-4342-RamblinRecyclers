@@ -10,20 +10,26 @@ import {
     DarkTheme as DarkNavigationTheme,
 } from "@react-navigation/native"
 
-const { LightTheme, DarkTheme: NavigationDarkTheme } = adaptNavigationTheme({
+const { LightTheme: NavigationLightTheme, DarkTheme: NavigationDarkTheme } = adaptNavigationTheme({
     reactNavigationLight: DefaultNavigationTheme,
     reactNavigationDark: DarkNavigationTheme,
-});
-
-const CombinedDefaultTheme = {
+  });
+  
+  const CombinedDefaultTheme = {
     ...DefaultTheme,
-    ...LightTheme,
-}
-
-const CombinedDarkTheme = {
+    colors: {
+      ...DefaultTheme.colors,
+      ...NavigationLightTheme.colors,
+    },
+  };
+  
+  const CombinedDarkTheme = {
     ...MD3DarkTheme,
-    ...NavigationDarkTheme,
-}
+    colors: {
+      ...MD3DarkTheme.colors,
+      ...NavigationDarkTheme.colors,
+    },
+  };
 
 export default function RootLayout() {
     const isDark = false
