@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'artifactimpldemo'
+rootProject.name = 'artifact-impl-demo'
 
 dependencyResolutionManagement {
   versionCatalogs {
