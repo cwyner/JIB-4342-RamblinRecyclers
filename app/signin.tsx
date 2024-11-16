@@ -11,17 +11,17 @@ import {
 } from "react-native"
 import { useSession } from "@/components/SessionProvider";
 import { useState } from "react";
-
+import { useRouter } from "expo-router";
 
 function LogIn() {
     const { signIn } = useSession()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const router = useRouter()
 
-    const handleSignIn = () => {
-        signIn(email, password).catch((error) => {
-            console.error(error)
-        })
+    const handleSignIn = async () => {
+        await signIn(email, password)
+        router.push("/")
     }
 
     return (

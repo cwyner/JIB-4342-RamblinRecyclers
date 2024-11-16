@@ -1,8 +1,8 @@
 import { View } from "react-native"
 import { withTheme } from "react-native-paper"
-import { Stack } from "expo-router"
+import { Stack } from "expo-router/stack"
 
-function ReceivingLayout({ theme }: { theme: any }) {
+function MaterialsLayout({ theme }: { theme: any }) {
     return (
         <View
             style={{
@@ -14,7 +14,7 @@ function ReceivingLayout({ theme }: { theme: any }) {
                 <Stack.Screen
                     name="index"
                     options={{
-                        title: "Receiving",
+                        title: "Materials",
                     }}
                 /> 
             </Stack>
@@ -22,4 +22,4 @@ function ReceivingLayout({ theme }: { theme: any }) {
     )
 }
 
-export default withTheme(ReceivingLayout)
+export default withTheme(MaterialsLayout)

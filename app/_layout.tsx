@@ -1,5 +1,4 @@
-import { Stack } from "expo-router"
-import { Text } from "react-native"
+import { Slot } from "expo-router"
 import {
     MD3LightTheme as DefaultTheme,
     MD3DarkTheme,
@@ -15,7 +14,6 @@ import {
     useSession
 } from "@/components/SessionProvider";
 import { initializeApp } from "firebase/app"
-import Auth from "./(auth)";
 
 const { LightTheme: NavigationLightTheme, DarkTheme: NavigationDarkTheme } = adaptNavigationTheme({
     reactNavigationLight: DefaultNavigationTheme,
@@ -49,49 +47,13 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig)
 
-function UserStack() {
-    return (
-        <Stack>
-            <Stack.Screen
-                name="(tabs)"
-                options={{
-                    headerShown: false,
-                }}
-            />
-        </Stack>
-    )
-}
-
-function AuthStack() {
-    return (
-        <Stack>
-            <Stack.Screen
-                name="(auth)"
-                options={{
-                    headerShown: false,
-                }}
-            />
-        </Stack>
-    )
-}
-
-function AppContent() {
-    const { user, isLoading } = useSession();
-  
-    if (isLoading) {
-        return <Text>Loading animation to be implemented...</Text>
-    }
-  
-    return user ? <UserStack /> : <AuthStack />
-  }
-
 export default function RootLayout() {
     const isDark = false
 
     return (
         <PaperProvider theme={ isDark ? CombinedDarkTheme : CombinedDefaultTheme }>
             <SessionProvider>
-                <AppContent />
+                <Slot />
             </SessionProvider>
         </PaperProvider>
         

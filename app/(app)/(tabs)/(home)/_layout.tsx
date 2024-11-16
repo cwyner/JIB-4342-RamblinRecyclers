@@ -1,6 +1,6 @@
 import { View } from "react-native"
 import { withTheme } from "react-native-paper"
-import { Stack } from "expo-router"
+import { Stack } from "expo-router/stack"
 
 function HomeLayout({ theme }: { theme: any }) {
     return (
