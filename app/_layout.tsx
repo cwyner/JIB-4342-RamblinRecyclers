@@ -1,4 +1,5 @@
 import { Stack } from "expo-router"
+import { Text } from "react-native"
 import {
     MD3LightTheme as DefaultTheme,
     MD3DarkTheme,
@@ -9,6 +10,10 @@ import {
     DefaultTheme as DefaultNavigationTheme,
     DarkTheme as DarkNavigationTheme,
 } from "@react-navigation/native"
+import {
+    SessionProvider,
+    useSession
+} from "@/components/SessionProvider";
 
 const { LightTheme: NavigationLightTheme, DarkTheme: NavigationDarkTheme } = adaptNavigationTheme({
     reactNavigationLight: DefaultNavigationTheme,
@@ -31,19 +36,50 @@ const { LightTheme: NavigationLightTheme, DarkTheme: NavigationDarkTheme } = ada
     },
   };
 
+function UserStack() {
+    return (
+        <Stack>
+            <Stack.Screen
+                name="(tabs)"
+                options={{
+                    headerShown: false,
+                }}
+            />
+        </Stack>
+    )
+}
+
+function AuthStack() {
+    return (
+        <Stack>
+            <Stack.Screen
+                name="(auth)"
+                options={{
+                    headerShown: false,
+                }}
+            />
+        </Stack>
+    )
+}
+
+function AppContent() {
+    const { user, isLoading } = useSession();
+  
+    if (isLoading) {
+      return <Text>Loading animation to be implemented...</Text>;
+    }
+  
+    return user ? <UserStack /> : <AuthStack />;
+  }
+
 export default function RootLayout() {
     const isDark = false
 
     return (
         <PaperProvider theme={ isDark ? CombinedDarkTheme : CombinedDefaultTheme }>
-            <Stack>
-                <Stack.Screen
-                    name="(tabs)"
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-            </Stack>
+            <SessionProvider>
+                <AppContent />
+            </SessionProvider>
         </PaperProvider>
         
     )

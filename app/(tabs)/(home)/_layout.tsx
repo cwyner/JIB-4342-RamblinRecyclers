@@ -3,7 +3,6 @@ import { withTheme } from "react-native-paper"
 import { Stack } from "expo-router"
 
 function HomeLayout({ theme }) {
-    console.log(theme)
     return (
         <View
             style={{
