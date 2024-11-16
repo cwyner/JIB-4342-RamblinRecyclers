@@ -3,9 +3,10 @@ import { Tabs } from "expo-router";
 import { withTheme } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 
-function TabLayout({ theme }) {
+function TabLayout({ theme }: { theme: any }) {
   return (
     <Tabs
+      initialRouteName="(home)"
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceDisabled,
@@ -13,7 +14,7 @@ function TabLayout({ theme }) {
           backgroundColor: theme.colors.surface,
         },
         tabBarIcon: ({ color, size }) => {
-          let iconName;
+          let iconName: "home" | "layers" | "inbox" | "help-outline" = "help-outline";
 
           if (route.name === "(home)") {
             iconName = "home";

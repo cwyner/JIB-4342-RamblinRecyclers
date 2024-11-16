@@ -1,7 +1,7 @@
 import { withTheme } from "react-native-paper"
 import { View } from "react-native"
 
-function Materials({ theme }) {
+function Materials({ theme }: { theme: any }) {
     return (
         <View>
         </View>

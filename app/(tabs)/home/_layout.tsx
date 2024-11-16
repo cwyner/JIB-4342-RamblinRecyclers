@@ -2,7 +2,7 @@ import { View } from "react-native"
 import { withTheme } from "react-native-paper"
 import { Stack } from "expo-router"
 
-function HomeLayout({ theme }) {
+function HomeLayout({ theme }: { theme: any }) {
     return (
         <View
             style={{

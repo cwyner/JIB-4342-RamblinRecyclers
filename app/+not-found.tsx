@@ -2,12 +2,12 @@ import { Link, Stack } from "expo-router"
 import { View } from "react-native"
 import { withTheme } from "react-native-paper"
 
-function NotFoundScreen({ theme }) {
+function NotFoundScreen({ theme }: { theme: any }) {
+    console.log("404 - Not Found")
     return (
         <>
-            <Stack.Screen options={{ title: "Oops! This screen doesn't exist! :(" }} />
-            <View style={ styles.container } >
-                <Link href="/">Go to home screen</Link>
+            <View>
+                <Link href="/home">Go to home screen</Link>
             </View>
         </>
     )

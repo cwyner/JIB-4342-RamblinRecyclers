@@ -1,11 +1,11 @@
 import { withTheme } from "react-native-paper"
 import { View } from "react-native"
 
-function Materials({ theme }) {
+function Home({ theme }: { theme: any }) {
     return (
         <View>
         </View>
     )
 }
 
-export default withTheme(Materials)
+export default withTheme(Home)
