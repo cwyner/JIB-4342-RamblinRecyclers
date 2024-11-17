@@ -23,7 +23,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
       return;
     }
 
-    addEvent(date, { title, hour, duration, description });
+    addEvent(date, { title, hour, duration, description, date });
     onClose();
 
     // Reset inputs

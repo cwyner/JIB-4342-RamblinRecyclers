@@ -54,51 +54,53 @@ import React, {
     const db = getFirestore();
   
     useEffect(() => {
-      if (!user) return;
-  
-      const fetchEvents = async () => {
-        setLoading(true);
-        try {
-          const eventsQuery = query(
-            collection(db, "events"),
-            where("userId", "==", user.uid)
-          );
-          const snapshot = await getDocs(eventsQuery);
-  
-          if (snapshot.empty) {
-            setAgendaItems([]);
-            setLoading(false);
-            return;
-          }
-  
-          const events = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as (Event & { date: string })[];
-  
-          const formattedEvents = events.reduce<AgendaItem[]>((acc, event) => {
-            const { date, ...rest } = event;
-            const existingDate = acc.find((item) => item.title === date);
-  
-            if (existingDate) {
-              existingDate.data.push(rest);
-            } else {
-              acc.push({ title: date, data: [rest] });
+        if (!user) return;
+      
+        const fetchEvents = async () => {
+          setLoading(true);
+          try {
+            const eventsQuery = query(
+              collection(db, "events"),
+              where("userId", "==", user.uid)
+            );
+            const snapshot = await getDocs(eventsQuery);
+      
+            if (snapshot.empty) {
+              setAgendaItems([]);
+              setLoading(false);
+              return;
             }
-  
-            return acc;
-          }, []);
-  
-          setAgendaItems(formattedEvents);
-        } catch (error) {
-          console.error("Error fetching events:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchEvents();
-    }, [user, db]);
+      
+            const events = snapshot.docs.map((doc) => {
+              const data = doc.data() as Event & { date?: string };
+              return {
+                ...data,
+                date: data.date ?? doc.id, // Ensure every event has a date field
+              };
+            });
+      
+            const formattedEvents = events.reduce<AgendaItem[]>((acc, event) => {
+              const existingDate = acc.find((item) => item.title === event.date);
+      
+              if (existingDate) {
+                existingDate.data.push(event);
+              } else {
+                acc.push({ title: event.date, data: [event] });
+              }
+      
+              return acc;
+            }, []);
+      
+            setAgendaItems(formattedEvents);
+          } catch (error) {
+            console.error("Error fetching events:", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+      
+        fetchEvents();
+      }, [user, db]);
   
     const addEvent = async (date: string, event: Event) => {
       setLoading(true);
