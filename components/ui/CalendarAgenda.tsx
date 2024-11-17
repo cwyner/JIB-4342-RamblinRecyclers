@@ -1,49 +1,34 @@
-import { useState } from "react"
-import {
-    withTheme,
-    Text,
-} from "react-native-paper";
+import React from "react";
+import { withTheme } from "react-native-paper";
 import { Agenda } from "react-native-calendars";
 import AgendaItem from "./AgendaItem";
+import { useEvents } from "../providers/EventsProvider";
 
 function CalendarAgenda({ theme }: { theme: any }) {
-    const [items, setItems] = useState({})
+    const { agendaItems } = useEvents();
 
-    const loadItems = (day) => {
-        setTimeout(() => {
-        const newItems = {}
-        const time = day.timestamp
-        newItems[time] = [{ name: 'Event for this day', height: 50 }]
-        setItems(newItems)
-        }, 1000)
-    }
+    const renderItem = (item: any) => <AgendaItem item={item} />;
 
-    const renderItem = (item) => { <AgendaItem item={item} /> }
+    const agendaTheme = {
+        agendaDayTextColor: theme.colors.primary,
+        agendaDayNumColor: theme.colors.primary,
+        agendaTodayColor: theme.colors.accent,
+        agendaKnobColor: theme.colors.primary,
+    };
 
     return (
         <Agenda
-          items={items}
-          loadItemsForMonth={loadItems}
-          selected={'2024-11-15'}
-          renderItem={renderItem}
-          minDate={'2024-01-01'}
-          maxDate={'2024-12-31'}
-          onDayPress={(day) => {
-            console.log('Selected day:', day)
-          }}
-          monthFormat={'yyyy MM'}
-          renderDay={(day, item) => (
-            <View>
-              <Text>{day ? day.day : ''}</Text>
-            </View>
-          )}
-          renderEmptyData={() => <Text>No events for this day</Text>}
-          theme={{
-            selectedDayBackgroundColor: theme.colors.accent,
-            todayTextColor: theme.colors.primary,
-          }}
+            items={agendaItems.reduce(
+                (acc, { title, data }) => ({
+                    ...acc,
+                    [title]: data,
+                }),
+                {}
+            )}
+            renderItem={renderItem}
+            theme={agendaTheme}
         />
-    )
+    );
 }
 
-export default withTheme(CalendarAgenda)
+export default withTheme(CalendarAgenda);
