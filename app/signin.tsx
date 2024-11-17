@@ -4,14 +4,14 @@ import {
     withTheme,
     TextInput,
     Avatar,
-} from "react-native-paper";
+} from "react-native-paper"
 import { 
     View,
     StyleSheet
 } from "react-native"
-import { useSession } from "@/components/SessionProvider";
-import { useState } from "react";
-import { useRouter } from "expo-router";
+import { useSession } from "@/components/providers/SessionProvider"
+import { useState } from "react"
+import { useRouter } from "expo-router"
 
 function LogIn() {
     const { signIn } = useSession()

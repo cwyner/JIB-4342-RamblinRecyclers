@@ -12,7 +12,7 @@ import {
 import {
     SessionProvider,
     useSession
-} from "@/components/SessionProvider";
+} from "@/components/providers/SessionProvider";
 import { initializeApp } from "firebase/app"
 
 const { LightTheme: NavigationLightTheme, DarkTheme: NavigationDarkTheme } = adaptNavigationTheme({

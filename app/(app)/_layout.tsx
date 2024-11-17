@@ -1,5 +1,5 @@
 import { Stack } from "expo-router/stack"
-import { useSession } from "@/components/SessionProvider"
+import { useSession } from "@/components/providers/SessionProvider"
 import { Text } from "react-native"
 import { Redirect } from "expo-router"
 

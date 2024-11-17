@@ -1,4 +1,4 @@
-import { Link, Stack } from "expo-router"
+import { Link } from "expo-router"
 import { View } from "react-native"
 import { withTheme } from "react-native-paper"
 
