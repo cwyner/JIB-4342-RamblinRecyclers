@@ -1,13 +1,13 @@
-import React from "react";
-import { withTheme } from "react-native-paper";
-import { Agenda } from "react-native-calendars";
-import AgendaItem from "./AgendaItem";
-import { useEvents } from "../providers/EventsProvider";
+import React from "react"
+import { withTheme } from "react-native-paper"
+import { Agenda } from "react-native-calendars"
+import AgendaItem from "./AgendaItem"
+import { useEvents } from "../providers/EventsProvider"
 
 function CalendarAgenda({ theme }: { theme: any }) {
     const { agendaItems } = useEvents();
 
-    const renderItem = (item: any) => <AgendaItem item={item} />;
+    const renderItem = (item: any) => <AgendaItem item={item} />
 
     const agendaTheme = {
         agendaDayTextColor: theme.colors.primary,
@@ -31,4 +31,4 @@ function CalendarAgenda({ theme }: { theme: any }) {
     );
 }
 
-export default withTheme(CalendarAgenda);
+export default withTheme(CalendarAgenda)
