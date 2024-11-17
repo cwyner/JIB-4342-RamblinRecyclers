@@ -1,6 +1,10 @@
 import { useState } from "react"
-import { withTheme, Text } from "react-native-paper";
+import {
+    withTheme,
+    Text,
+} from "react-native-paper";
 import { Agenda } from "react-native-calendars";
+import AgendaItem from "./AgendaItem";
 
 function CalendarAgenda({ theme }: { theme: any }) {
     const [items, setItems] = useState({})
@@ -14,13 +18,7 @@ function CalendarAgenda({ theme }: { theme: any }) {
         }, 1000)
     }
 
-    const renderItem = (item) => {
-        return (
-        <View style={[styles.item, { backgroundColor: theme.colors.primary }]}>
-            <Text style={styles.itemText}>{item.name}</Text>
-        </View>
-        )
-    }
+    const renderItem = (item) => { <AgendaItem item={item} /> }
 
     return (
         <Agenda
