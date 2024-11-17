@@ -1,31 +1,35 @@
-import {
-    withTheme,
-    Text,
-} from "react-native-paper"
-import { 
-    View,
-    StyleSheet
-} from "react-native"
+import React from "react";
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 
-function AgendaItem({ theme, item }: { theme: any, item: any }) {
-    return (
-        <View style={[styles.item, { backgroundColor: theme.colors.primary }]}>
-            <Text style={styles.itemText}>{item.name}</Text>
-        </View>
-    )
+interface AgendaItemProps {
+  item: any;
+  onPress: () => void;
+}
+
+function AgendaItem({ item, onPress }: AgendaItemProps) {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.itemContainer}>
+      <Text style={styles.itemTitle}>{item.title}</Text>
+      <Text style={styles.itemHour}>{item.hour}</Text>
+    </TouchableOpacity>
+  );
 }
 
 const styles = StyleSheet.create({
-    item: {
-        flex: 1,
-        padding: 10,
-        marginRight: 10,
-        marginTop: 17,
-    },
-    itemText: {
-        fontSize: 14,
-        color: "white",
-    },
+  itemContainer: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  itemHour: {
+    fontSize: 14,
+    color: "#666",
+  },
 });
 
-export default withTheme(AgendaItem)
+export default AgendaItem;
