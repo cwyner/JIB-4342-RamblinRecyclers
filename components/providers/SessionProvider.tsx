@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, PropsWithChildren } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  PropsWithChildren 
+} from 'react'
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -8,7 +14,7 @@ import {
 } from 'firebase/auth'
 
 type AuthContextType = {
-  signIn: (email: string, password: string) => Promise<any>;
+  signIn: (email: string, password: string) => Promise<any>
   signOut: () => Promise<void>
   user: User | null
   isLoading: boolean
@@ -17,11 +23,11 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useSession = () => {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useSession must be used within a SessionProvider');
+    throw new Error('useSession must be used within a SessionProvider')
   }
-  return context;
+  return context
 };
 
 export const SessionProvider = ({ children }: PropsWithChildren) => {

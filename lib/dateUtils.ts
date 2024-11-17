@@ -1,3 +1,10 @@
+export interface Event {
+    title: string
+    hour: string
+    duration: string
+    description: string
+}
+
 export function getTodaysDate() {
     const now = new Date()
 
@@ -6,4 +13,9 @@ export function getTodaysDate() {
     const day = String(now.getDate()).padStart(2, '0')
 
     return `${year}-${month}-${day}`
+}
+
+export function getUserEvents(id: string) {
+    // TODO: Get user's event data from Firebase
+    return {}
 }
