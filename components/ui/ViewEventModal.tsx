@@ -1,42 +1,45 @@
 import React, { useState } from "react";
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import { Modal, TextInput, Button, withTheme } from "react-native-paper";
+import { Modal, TextInput, Button } from "react-native-paper";
 import { useEvents } from "@/components/providers/EventsProvider";
 
-interface NewEventModalProps {
-  visible: boolean;
+interface ViewEventModalProps {
+  event: any;
   onClose: () => void;
 }
 
-function NewEventModal({ visible, onClose }: NewEventModalProps) {
-  const { addEvent } = useEvents();
+function ViewEventModal({ event, onClose }: ViewEventModalProps) {
+  const { removeEvent, addEvent } = useEvents();
 
-  const [title, setTitle] = useState("");
-  const [hour, setHour] = useState("");
-  const [duration, setDuration] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  const [title, setTitle] = useState(event.title || "");
+  const [hour, setHour] = useState(event.hour || "");
+  const [duration, setDuration] = useState(event.duration || "");
+  const [description, setDescription] = useState(event.description || "");
+  const [date, setDate] = useState(event.date || "");
 
-  const handleAddEvent = () => {
+  const handleDelete = () => {
+    if (date && title) {
+      removeEvent(date, title);
+    } else {
+      console.error("Error: Date or title is missing when deleting an event.");
+    }
+    onClose();
+  };
+
+  const handleUpdate = async () => {
     if (!title || !date || !hour || !duration) {
       alert("Please fill all required fields.");
       return;
     }
 
-    addEvent(date, { title, hour, duration, description, date });
+    await removeEvent(event.date, event.title);
+    await addEvent(date, { title, hour, duration, description, date });
     onClose();
-
-    // Reset inputs
-    setTitle("");
-    setHour("");
-    setDuration("");
-    setDescription("");
-    setDate("");
   };
 
   return (
     <Modal
-      visible={visible}
+      visible={true}
       onDismiss={onClose}
       contentContainerStyle={styles.modalContainer}
     >
@@ -79,8 +82,11 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           mode="outlined"
           multiline
         />
-        <Button mode="contained" onPress={handleAddEvent}>
-          Add Event
+        <Button mode="contained" onPress={handleUpdate}>
+          Update Event
+        </Button>
+        <Button mode="text" onPress={handleDelete} color="red">
+          Delete Event
         </Button>
       </KeyboardAvoidingView>
     </Modal>
@@ -100,4 +106,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewEventModal;
+export default ViewEventModal;
