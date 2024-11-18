@@ -9,8 +9,19 @@ Each of these parts makes up an app that provides a quality-of-life service to a
 # Release Notes
 ## v0.0.0
 ### Features
-Activity Calendar added.
+- Activity Calendar
+- Authentication
+- Firestore Layer
 
 ### Bug Fixes
+- Home route not rendering after authenticating user
+- Event pop up modals not prefilled
+- Event pop up modal rendering outside of EventProvider
+
 
 ### Known Issues
+- User authenticated state not persisting between sessions
+- Empty days will not render an agenda list for the items that are within 7 days of them.
+- No sign up form
+- No date picker modal
+- No time picker modal
