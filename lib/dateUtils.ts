@@ -15,7 +15,7 @@ export function getTodaysDate() {
     return `${year}-${month}-${day}`
 }
 
-export function getUserEvents(id: string) {
+export function getUserEvents(id: string): Event | undefined {
     // TODO: Get user's event data from Firebase
-    return {}
+    return undefined
 }
