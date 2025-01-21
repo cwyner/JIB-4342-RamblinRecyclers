@@ -14,11 +14,22 @@ import {
   createUserWithEmailAndPassword
 } from 'firebase/auth'
 import * as SecureStore from "expo-secure-store"
+import {
+  getFirestore,
+  doc,
+  collection,
+  setDoc,
+  addDoc,
+  deleteDoc,
+  query,
+  where,
+  serverTimestamp,
+} from "firebase/firestore";
 
 type AuthContextType = {
   signIn: (email: string, password: string) => Promise<any>
   signOut: () => Promise<void>
-  register: (email: string, password: string) => Promise<any>
+  register: (email: string, password: string, firstName: string, lastName: string) => Promise<any>
   user: User | null
   isLoading: boolean
 };
@@ -74,8 +85,26 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     return firebaseSignOut(auth)
   }
 
-  const register = async (email: string, password: string) => {
-    return createUserWithEmailAndPassword(auth, email, password)
+  const register = async (email: string, password: string, firstName: string, lastName: string) => {
+    const db = getFirestore();
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        firstName: firstName,
+        lastName: lastName,
+        createdAt: serverTimestamp(),
+      });
+
+      console.log("User registered and added to Firestore successfully");
+      return user
+    } catch (error) {
+      console.error("Error during registration:", error);
+      throw error
+    }
   }
 
   return (

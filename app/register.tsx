@@ -18,16 +18,19 @@ function Register() {
     const { register } = useSession()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
     const [localError, setLocalError] = useState<string | null>(null)
     const router = useRouter()
 
     const handleRegistration = async () => {
         try {
-            await register(email, password)
+            await register(email, password, firstName, lastName)
             router.push("/")
         } catch (err) {
             setLocalError("Invalid email or password.")
-        }
+            console.error(err)
+       }
     }
 
     return (
@@ -49,14 +52,14 @@ function Register() {
                     <TextInput
                         label="First Name"
                         style={styles.input}
-                        onChangeText={setEmail}
+                        onChangeText={setFirstName}
                         autoCapitalize="none"
                         keyboardType="ascii-capable"
                     />
                     <TextInput
                         label="Last Name"
                         style={styles.input}
-                        onChangeText={setEmail}
+                        onChangeText={setLastName}
                         autoCapitalize="none"
                         keyboardType="ascii-capable"
                     />
