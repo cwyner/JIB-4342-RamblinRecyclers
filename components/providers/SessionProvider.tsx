@@ -10,12 +10,14 @@ import {
   signInWithEmailAndPassword, 
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  User
+  User,
+  createUserWithEmailAndPassword
 } from 'firebase/auth'
 
 type AuthContextType = {
   signIn: (email: string, password: string) => Promise<any>
   signOut: () => Promise<void>
+  register: (email: string, password: string) => Promise<any>
   user: User | null
   isLoading: boolean
 };
@@ -50,11 +52,15 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
 
   const signOut = async () => {
     return firebaseSignOut(auth)
-  };
+  }
+
+  const register = async (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password)
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isLoading, signIn, signOut, register }}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
