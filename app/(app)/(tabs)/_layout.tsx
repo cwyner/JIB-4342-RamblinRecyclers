@@ -3,7 +3,9 @@ import { Tabs } from "expo-router";
 import { withTheme } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 
+
 function TabLayout({ theme }: { theme: any }) {
+
   return (
     <Tabs
       initialRouteName="(home)"
