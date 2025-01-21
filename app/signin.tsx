@@ -22,15 +22,21 @@ function LogIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [rememberMe, setRememberMe] = useState(false)
+    const [localError, setLocalError] = useState<string | null>(null)
     const router = useRouter()
 
     const handleSignIn = async () => {
-        if (rememberMe) {
-            await SecureStore.setItemAsync("email", email)
-            await SecureStore.setItemAsync("password", password)
+        try{
+            setLocalError(null)
+            if (rememberMe) {
+                await SecureStore.setItemAsync("email", email)
+                await SecureStore.setItemAsync("password", password)
+            }
+            await signIn(email, password)
+            router.push("/")
+        } catch (err) {
+            setLocalError("Invalid email or password.")
         }
-        await signIn(email, password)
-        router.push("/")
     }
 
     return (
@@ -64,6 +70,7 @@ function LogIn() {
                     />
                     <Text style={styles.rememberMeText}>Remember Me</Text>
                 </View>
+                {localError && <Text style={styles.errorText}>{localError}</Text>}
                 <Card.Actions>
                     <Button mode="contained" onPress={handleSignIn}>Log In</Button>
                 </Card.Actions>
@@ -96,11 +103,16 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         marginTop: 8,
-      },
-      rememberMeText: {
+    },
+        rememberMeText: {
         marginLeft: 8,
         fontSize: 14,
-      },
+    },
+    errorText: {
+        color: "red",
+        marginLeft: 16,
+        marginTop: 8,
+    },
 });
 
 export default withTheme(LogIn)

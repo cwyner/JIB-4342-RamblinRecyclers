@@ -18,11 +18,16 @@ function Register() {
     const { register } = useSession()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [localError, setLocalError] = useState<string | null>(null)
     const router = useRouter()
 
     const handleRegistration = async () => {
-        await register(email, password)
-        router.push("/")
+        try {
+            await register(email, password)
+            router.push("/")
+        } catch (err) {
+            setLocalError("Invalid email or password.")
+        }
     }
 
     return (
@@ -63,6 +68,7 @@ function Register() {
                     />
                 </Card.Content>
                 <Text style={styles.text}>Already have an account? <Link style={styles.link} href="/signin">Log In.</Link></Text>
+                {localError && <Text style={styles.errorText}>{localError}</Text>}
                 <Card.Actions>
                     <Button mode="contained" onPress={handleRegistration}>Register</Button>
                 </Card.Actions>
@@ -90,7 +96,16 @@ const styles = StyleSheet.create({
     },
     text: {
         marginLeft: 16
-    }
+    },
+    rememberMeText: {
+        marginLeft: 8,
+        fontSize: 14,
+    },
+    errorText: {
+        color: "red",
+        marginLeft: 16,
+        marginTop: 8,
+    },
 })
 
 export default withTheme(Register)
