@@ -13,6 +13,7 @@ import {
   User,
   createUserWithEmailAndPassword
 } from 'firebase/auth'
+import * as SecureStore from "expo-secure-store"
 
 type AuthContextType = {
   signIn: (email: string, password: string) => Promise<any>
@@ -38,6 +39,23 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   const auth = getAuth()
 
   useEffect(() => {
+    const loadCredentials = async () => {
+      try {
+        const email = await SecureStore.getItemAsync("email");
+        const password = await SecureStore.getItemAsync("password");
+
+        if (email && password) {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } catch (error) {
+        console.error("Failed to load credentials:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCredentials();
+
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       console.log("Log In Detected: ", authUser)
       setUser(authUser)
@@ -51,6 +69,8 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   }
 
   const signOut = async () => {
+    //await SecureStore.deleteItemAsync("email");
+    //await SecureStore.deleteItemAsync("password");
     return firebaseSignOut(auth)
   }
 

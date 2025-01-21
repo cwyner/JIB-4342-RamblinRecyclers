@@ -5,6 +5,7 @@ import {
     Text,
     TextInput,
     Avatar,
+    Checkbox,
 } from "react-native-paper"
 import { Link } from "expo-router"
 import { 
@@ -14,14 +15,20 @@ import {
 import { useSession } from "@/components/providers/SessionProvider"
 import { useState } from "react"
 import { useRouter } from "expo-router"
+import * as SecureStore from "expo-secure-store"
 
 function LogIn() {
     const { signIn } = useSession()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [rememberMe, setRememberMe] = useState(false)
     const router = useRouter()
 
     const handleSignIn = async () => {
+        if (rememberMe) {
+            await SecureStore.setItemAsync("email", email)
+            await SecureStore.setItemAsync("password", password)
+        }
         await signIn(email, password)
         router.push("/")
     }
@@ -50,6 +57,13 @@ function LogIn() {
                     />
                 </Card.Content>
                 <Text style={styles.text}>Don't have an account? <Link style={styles.link} href="/register">Register</Link></Text>
+                <View style={styles.rememberMeContainer}>
+                    <Checkbox
+                        status={rememberMe ? "checked": "unchecked"}
+                        onPress={() => setRememberMe(!rememberMe)}
+                    />
+                    <Text style={styles.rememberMeText}>Remember Me</Text>
+                </View>
                 <Card.Actions>
                     <Button mode="contained" onPress={handleSignIn}>Log In</Button>
                 </Card.Actions>
@@ -77,7 +91,16 @@ const styles = StyleSheet.create({
     },
     text: {
         marginLeft: 16
-    }
+    },
+    rememberMeContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 8,
+      },
+      rememberMeText: {
+        marginLeft: 8,
+        fontSize: 14,
+      },
 });
 
 export default withTheme(LogIn)
