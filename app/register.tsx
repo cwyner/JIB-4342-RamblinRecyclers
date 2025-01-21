@@ -2,41 +2,35 @@ import {
     Card,
     Button,
     withTheme,
-    Text,
     TextInput,
+    Text,
     Avatar,
-    Checkbox,
 } from "react-native-paper"
-import { Link } from "expo-router"
 import { 
     View,
     StyleSheet
 } from "react-native"
 import { useSession } from "@/components/providers/SessionProvider"
 import { useState } from "react"
-import { useRouter } from "expo-router"
-import * as SecureStore from "expo-secure-store"
+import { useRouter, Link } from "expo-router"
 
-function LogIn() {
-    const { signIn } = useSession()
+function Register() {
+    const { register } = useSession()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [rememberMe, setRememberMe] = useState(false)
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
     const [localError, setLocalError] = useState<string | null>(null)
     const router = useRouter()
 
-    const handleSignIn = async () => {
-        try{
-            setLocalError(null)
-            if (rememberMe) {
-                await SecureStore.setItemAsync("email", email)
-                await SecureStore.setItemAsync("password", password)
-            }
-            await signIn(email, password)
+    const handleRegistration = async () => {
+        try {
+            await register(email, password, firstName, lastName)
             router.push("/")
         } catch (err) {
             setLocalError("Invalid email or password.")
-        }
+            console.error(err)
+       }
     }
 
     return (
@@ -44,7 +38,7 @@ function LogIn() {
             <Card style={styles.card}>
                 <Card.Title 
                     title="Upcycle Build App"
-                    subtitle="Log In"
+                    subtitle="New Account"
                     left={(props) => <Avatar.Icon {...props} icon="account" />} 
                 />
                 <Card.Content>
@@ -56,23 +50,30 @@ function LogIn() {
                         keyboardType="email-address"
                     />
                     <TextInput
+                        label="First Name"
+                        style={styles.input}
+                        onChangeText={setFirstName}
+                        autoCapitalize="none"
+                        keyboardType="ascii-capable"
+                    />
+                    <TextInput
+                        label="Last Name"
+                        style={styles.input}
+                        onChangeText={setLastName}
+                        autoCapitalize="none"
+                        keyboardType="ascii-capable"
+                    />
+                    <TextInput
                         label="Password"
                         secureTextEntry
                         style={styles.input}
                         onChangeText={setPassword}
                     />
                 </Card.Content>
-                <Text style={styles.text}>Don't have an account? <Link style={styles.link} href="/register">Register</Link></Text>
-                <View style={styles.rememberMeContainer}>
-                    <Checkbox
-                        status={rememberMe ? "checked": "unchecked"}
-                        onPress={() => setRememberMe(!rememberMe)}
-                    />
-                    <Text style={styles.rememberMeText}>Remember Me</Text>
-                </View>
+                <Text style={styles.text}>Already have an account? <Link style={styles.link} href="/signin">Log In.</Link></Text>
                 {localError && <Text style={styles.errorText}>{localError}</Text>}
                 <Card.Actions>
-                    <Button mode="contained" onPress={handleSignIn}>Log In</Button>
+                    <Button mode="contained" onPress={handleRegistration}>Register</Button>
                 </Card.Actions>
             </Card>
         </View>
@@ -99,12 +100,7 @@ const styles = StyleSheet.create({
     text: {
         marginLeft: 16
     },
-    rememberMeContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 8,
-    },
-        rememberMeText: {
+    rememberMeText: {
         marginLeft: 8,
         fontSize: 14,
     },
@@ -113,6 +109,6 @@ const styles = StyleSheet.create({
         marginLeft: 16,
         marginTop: 8,
     },
-});
+})
 
-export default withTheme(LogIn)
+export default withTheme(Register)
