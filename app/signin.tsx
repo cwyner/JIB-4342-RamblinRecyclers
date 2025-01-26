@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 8,
     },
-        rememberMeText: {
+    rememberMeText: {
         marginLeft: 8,
         fontSize: 14,
     },
