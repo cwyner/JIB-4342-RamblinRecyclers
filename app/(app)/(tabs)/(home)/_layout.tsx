@@ -14,6 +14,18 @@ function HomeLayout({ theme }: { theme: any }) {
             header: () => <ScreenHeader title="Home" />,
           }}
         />
+        <Stack.Screen
+          name="teams"
+          options={{
+            header: () => <ScreenHeader title="Teams" />,
+          }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{
+            header: () => <ScreenHeader title="Settings" />,
+          }}
+        />
       </Stack>
     </View>
   );

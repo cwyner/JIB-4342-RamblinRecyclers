@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Menu, Divider, IconButton, Provider as PaperProvider } from 'react-native-paper';
 import { useSession } from '@/components/providers/SessionProvider';
+import { useRouter } from 'expo-router';
 
 export const HamburgerMenu = () => {
   const [visible, setVisible] = useState(false);
   const { signOut } = useSession()
+  const router = useRouter()
 
   const openMenu = () => setVisible(true);
 
@@ -17,13 +19,14 @@ export const HamburgerMenu = () => {
       anchorPosition="bottom"
       anchor={
         <IconButton
-          icon="menu" // Hamburger icon from react-native-paper's Material Design icons
+          icon="menu"
           size={24}
           onPress={openMenu}
         />
       }
     >
-      <Menu.Item onPress={() => {}} title="Teams" />
+      <Menu.Item onPress={() => router.push("/teams")} title="Teams" />
+      <Menu.Item onPress={() => router.push("/settings")} title="Settings" />
       <Divider />
       <Menu.Item onPress={() => signOut()} title="Sign Out" />
     </Menu>
