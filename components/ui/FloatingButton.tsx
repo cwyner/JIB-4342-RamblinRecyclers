@@ -7,7 +7,15 @@ interface FloatingButtonProps {
 }
 
 
-
+function FloatingButton({ onPress }: FloatingButtonProps) {
+  return (
+    <FAB
+      style={styles.fab}
+      icon="plus"
+      onPress={onPress}
+    />
+  );
+}
 
 const styles = StyleSheet.create({
   fab: {
