@@ -45,7 +45,7 @@ function SettingsScreen({ theme }: { theme: any }) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<any | null>(null); // entire org doc
+  const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
   const [selectedRole, setSelectedRole] = useState<"manager" | "member" | "admin">("member");
 
   useEffect(() => {
