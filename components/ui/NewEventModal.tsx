@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import { Modal, TextInput, Button, withTheme } from "react-native-paper";
+import { Modal, TextInput, Button, withTheme, HelperText } from "react-native-paper";
 import { useEvents } from "@/components/providers/EventsProvider";
 
 interface NewEventModalProps {
@@ -16,6 +16,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [team, setTeam] = useState("");
 
   const handleAddEvent = () => {
     if (!title || !date || !hour || !duration) {
@@ -23,15 +24,23 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
       return;
     }
 
-    addEvent(date, { title, hour, duration, description, date });
+    addEvent(date, {
+      title,
+      hour,
+      duration,
+      description,
+      date,
+      team,
+    });
+
     onClose();
 
-    // Reset inputs
     setTitle("");
     setHour("");
     setDuration("");
     setDescription("");
     setDate("");
+    setTeam("");
   };
 
   return (
@@ -79,6 +88,18 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           mode="outlined"
           multiline
         />
+        <TextInput
+          label="Team"
+          placeholder="Team name or ID"
+          value={team}
+          onChangeText={setTeam}
+          style={styles.input}
+          mode="outlined"
+        />
+        <HelperText type="info" visible={true}>
+          Optional: Assign this event to a specific team.
+        </HelperText>
+
         <Button mode="contained" onPress={handleAddEvent}>
           Add Event
         </Button>
@@ -100,4 +121,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewEventModal;
+export default withTheme(NewEventModal);
