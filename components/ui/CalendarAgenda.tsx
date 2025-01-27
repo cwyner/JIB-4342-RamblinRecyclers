@@ -10,7 +10,7 @@ interface CalendarAgendaProps {
 function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
   const { agendaItems } = useEvents();
 
- // const renderItem = (item: any) => {
+  const renderItem = (item: any) => {
     if (!item || Object.keys(item).length === 0) {
         return null;
     }

@@ -13,7 +13,6 @@ function CalendarView() {
 
   const openNewEventModal = () => setIsNewModalVisible(true);
   const closeNewEventModal = () => setIsNewModalVisible(false);
-
   const openViewEventModal = (event: any) => setSelectedEvent(event);
   const closeViewEventModal = () => setSelectedEvent(null);
 
