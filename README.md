@@ -7,6 +7,23 @@ The Upcycle Build application aims to assist those who work in the reuse industr
 Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for the fast-paced environment they work in.
 
 # Release Notes
+## v0.1.0
+### Features
+- Registration Screen
+- Login Screen
+- Account Roles
+- Settings Page
+- Teams
+- Supports use by organizations
+
+### Bug Fixes
+- Users can create accounts, no longer one master account controlling the app (was this way for initial demo purposes)
+
+### Known Issues
+- "Loading" icon spins on Calendar screen when there are no events for that day
+- No Single Sign-On (SSO) functionality yet
+
+
 ## v0.0.0
 ### Features
 - Activity Calendar
@@ -17,7 +34,6 @@ Each of these parts makes up an app that provides a quality-of-life service to a
 - Home route not rendering after authenticating user
 - Event pop up modals not prefilled
 - Event pop up modal rendering outside of EventProvider
-
 
 ### Known Issues
 - User authenticated state not persisting between sessions
