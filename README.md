@@ -12,6 +12,9 @@ Each of these parts makes up an app that provides a quality-of-life service to a
 - Registration Screen
 - Login Screen
 - Account Roles
+- Settings Page
+- Teams
+- Supports use by organizations
 
 ### Bug Fixes
 - Users can create accounts, no longer one master account controlling the app (was this way for initial demo purposes)
