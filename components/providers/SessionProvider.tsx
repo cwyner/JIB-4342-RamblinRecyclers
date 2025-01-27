@@ -80,8 +80,8 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   }
 
   const signOut = async () => {
-    //await SecureStore.deleteItemAsync("email");
-    //await SecureStore.deleteItemAsync("password");
+    await SecureStore.deleteItemAsync("email");
+    await SecureStore.deleteItemAsync("password");
     return firebaseSignOut(auth)
   }
 
