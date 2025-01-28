@@ -22,6 +22,7 @@ Each of these parts makes up an app that provides a quality-of-life service to a
 ### Known Issues
 - "Loading" icon spins on Calendar screen when there are no events for that day
 - No Single Sign-On (SSO) functionality yet
+- Calendar brings user to wrong day upon launch
 
 
 ## v0.0.0
