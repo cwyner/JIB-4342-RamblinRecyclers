@@ -26,7 +26,7 @@ interface Event {
   title: string
   description?: string
   date: string
-  teamName?: string // <-- Team name instead of teamId
+  teamName?: string
 }
 
 interface AgendaItem {
@@ -79,6 +79,7 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
           const data = docSnap.data() as Event & { date?: string }
           return {
             ...data,
+            id: docSnap.id,
             date: data.date ?? docSnap.id,
           }
         })
@@ -106,23 +107,13 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
     fetchEvents()
   }, [user, db])
 
-  /**
-   * addEvent
-   *
-   * - Saves the event to the 'events' collection.
-   * - If `teamName` is set, looks up the team document by that name,
-   *   and updates its `eventIds` array with the new event's document ID.
-   */
   const addEvent = async (date: string, event: Event) => {
     setLoading(true)
     try {
-      // 1) Construct the new event object
       const newEvent = { ...event, date, userId: user?.uid }
 
-      // 2) Add the event to Firestore (in /events)
       const eventRef = await addDoc(collection(db, "events"), newEvent)
 
-      // 3) If the event has a teamName, find that team doc and update the eventIds array
       if (event.teamName && event.teamName.trim().length > 0) {
         const teamsRef = collection(db, "teams")
         const teamQuery = query(
@@ -136,8 +127,6 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
           eventIds: arrayUnion(eventRef.id),
         })
       }
-
-      // 4) Update the local agenda state
       setAgendaItems((prevItems) => {
         const existingDate = prevItems.find((item) => item.title === date)
         if (existingDate) {
@@ -173,13 +162,11 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
       )
       const snapshot = await getDocs(eventsQuery)
 
-      // Delete all matching events
       const deletePromises = snapshot.docs.map((docSnap) =>
         deleteDoc(docSnap.ref)
       )
       await Promise.all(deletePromises)
 
-      // Update local state
       setAgendaItems((prevItems) =>
         prevItems
           .map((item) =>
@@ -196,6 +183,24 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
       console.error("Error deleting event:", error)
     }
   }
+
+  const updateEvent = async (eventId: string, updatedFields: Partial<Event>) => {
+    try {
+      const eventRef = doc(db, "events", eventId);
+      await updateDoc(eventRef, updatedFields);
+
+      setAgendaItems((prevItems) =>
+        prevItems.map((item) => ({
+          ...item,
+          data: item.data.map((ev) =>
+            ev.id === eventId ? { ...ev, ...updatedFields } : ev
+          ),
+        }))
+      );
+    } catch (error) {
+      console.error("Error updating event:", error);
+    }
+  };
 
   return (
     <EventsContext.Provider
