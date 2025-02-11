@@ -1,11 +1,9 @@
-import React, { useState } from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import { Checkbox } from "react-native-paper";
+import React from "react"
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native"
 
 interface AgendaItemProps {
-  item: any;
-  onPress: () => void;
-  onToggleComplete: (id: string) => void;
+  item: any
+  onPress: () => void
 }
 
 function AgendaItem({ item, onPress, onToggleComplete }: AgendaItemProps) {
@@ -17,7 +15,7 @@ function AgendaItem({ item, onPress, onToggleComplete }: AgendaItemProps) {
       />
       <Text style={styles.itemTitle}>{item.title}</Text>
     </TouchableOpacity>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -38,10 +36,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-  completed: {
-    textDecorationLine: "line-through",
-    color: "#aaa",
-  },
-});
+})
 
-export default AgendaItem;
+export default AgendaItem

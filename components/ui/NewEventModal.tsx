@@ -1,27 +1,33 @@
-import React, { useState } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import { Modal, TextInput, Button, withTheme, HelperText } from "react-native-paper";
-import { useEvents } from "@/components/providers/EventsProvider";
+import React, { useState } from "react"
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
+import {
+  Modal,
+  TextInput,
+  Button,
+  withTheme,
+  HelperText,
+} from "react-native-paper"
+import { useEvents } from "@/components/providers/EventsProvider"
 
 interface NewEventModalProps {
-  visible: boolean;
-  onClose: () => void;
+  visible: boolean
+  onClose: () => void
 }
 
 function NewEventModal({ visible, onClose }: NewEventModalProps) {
-  const { addEvent } = useEvents();
+  const { addEvent } = useEvents()
 
-  const [title, setTitle] = useState("");
-  const [hour, setHour] = useState("");
-  const [duration, setDuration] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [team, setTeam] = useState("");
+  const [title, setTitle] = useState("")
+  const [hour, setHour] = useState("")
+  const [duration, setDuration] = useState("")
+  const [description, setDescription] = useState("")
+  const [date, setDate] = useState("")
+  const [team, setTeam] = useState("")
 
   const handleAddEvent = () => {
     if (!title || !date || !hour || !duration) {
-      alert("Please fill all required fields.");
-      return;
+      alert("Please fill all required fields.")
+      return
     }
 
     addEvent(date, {
@@ -31,17 +37,17 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
       description,
       date,
       team,
-    });
+    })
 
-    onClose();
+    onClose()
 
-    setTitle("");
-    setHour("");
-    setDuration("");
-    setDescription("");
-    setDate("");
-    setTeam("");
-  };
+    setTitle("")
+    setHour("")
+    setDuration("")
+    setDescription("")
+    setDate("")
+    setTeam("")
+  }
 
   return (
     <Modal
@@ -105,7 +111,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
         </Button>
       </KeyboardAvoidingView>
     </Modal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -119,6 +125,6 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 15,
   },
-});
+})
 
-export default withTheme(NewEventModal);
+export default withTheme(NewEventModal)

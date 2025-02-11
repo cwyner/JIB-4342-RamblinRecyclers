@@ -1,11 +1,9 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { withTheme } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
-
+import React from "react"
+import { Tabs } from "expo-router"
+import { withTheme } from "react-native-paper"
+import { MaterialIcons } from "@expo/vector-icons"
 
 function TabLayout({ theme }: { theme: any }) {
-
   return (
     <Tabs
       initialRouteName="(home)"
@@ -16,17 +14,18 @@ function TabLayout({ theme }: { theme: any }) {
           backgroundColor: theme.colors.surface,
         },
         tabBarIcon: ({ color, size }) => {
-          let iconName: "home" | "layers" | "inbox" | "help-outline" = "help-outline";
+          let iconName: "home" | "layers" | "inbox" | "help-outline" =
+            "help-outline"
 
           if (route.name === "(home)") {
-            iconName = "home";
+            iconName = "home"
           } else if (route.name === "(materials)") {
-            iconName = "layers";
+            iconName = "layers"
           } else if (route.name === "(receiving)") {
-            iconName = "inbox";
+            iconName = "inbox"
           }
 
-          return <MaterialIcons name={iconName} size={size} color={color} />;
+          return <MaterialIcons name={iconName} size={size} color={color} />
         },
       })}
     >
@@ -52,7 +51,7 @@ function TabLayout({ theme }: { theme: any }) {
         }}
       />
     </Tabs>
-  );
+  )
 }
 
 export default withTheme(TabLayout)

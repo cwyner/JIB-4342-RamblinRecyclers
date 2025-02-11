@@ -1,8 +1,8 @@
-import { View } from "react-native";
-import { Appbar, withTheme } from "react-native-paper";
-import { Stack } from "expo-router/stack";
-import { HamburgerMenu } from "@/components/ui/HamburgerMenu";
-import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { View } from "react-native"
+import { Appbar, withTheme } from "react-native-paper"
+import { Stack } from "expo-router/stack"
+import { HamburgerMenu } from "@/components/ui/HamburgerMenu"
+import { ScreenHeader } from "@/components/ui/ScreenHeader"
 
 function HomeLayout({ theme }: { theme: any }) {
   return (
@@ -28,7 +28,7 @@ function HomeLayout({ theme }: { theme: any }) {
         />
       </Stack>
     </View>
-  );
+  )
 }
 
-export default withTheme(HomeLayout);
+export default withTheme(HomeLayout)

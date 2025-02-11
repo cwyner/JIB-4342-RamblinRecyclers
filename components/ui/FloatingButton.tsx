@@ -1,20 +1,13 @@
-import React from "react";
-import { FAB } from "react-native-paper";
-import { StyleSheet } from "react-native";
+import React from "react"
+import { FAB } from "react-native-paper"
+import { StyleSheet } from "react-native"
 
 interface FloatingButtonProps {
-  onPress: () => void;
+  onPress: () => void
 }
 
-
 function FloatingButton({ onPress }: FloatingButtonProps) {
-  return (
-    <FAB
-      style={styles.fab}
-      icon="plus"
-      onPress={onPress}
-    />
-  );
+  return <FAB style={styles.fab} icon="plus" onPress={onPress} />
 }
 
 const styles = StyleSheet.create({
@@ -24,6 +17,6 @@ const styles = StyleSheet.create({
     bottom: 16,
     backgroundColor: "#6200ee",
   },
-});
+})
 
-export default FloatingButton;
+export default FloatingButton

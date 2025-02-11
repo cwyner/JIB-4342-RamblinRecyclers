@@ -1,27 +1,27 @@
-import React, { useState } from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
-import { Portal, FAB } from "react-native-paper";
-import CalendarAgenda from "@/components/ui/CalendarAgenda";
-import NewEventModal from "@/components/ui/NewEventModal";
-import ViewEventModal from "@/components/ui/ViewEventModal";
-import { useEvents } from "@/components/providers/EventsProvider";
+import React, { useState } from "react"
+import { View, ActivityIndicator, StyleSheet } from "react-native"
+import { Portal, FAB } from "react-native-paper"
+import CalendarAgenda from "@/components/ui/CalendarAgenda"
+import NewEventModal from "@/components/ui/NewEventModal"
+import ViewEventModal from "@/components/ui/ViewEventModal"
+import { useEvents } from "@/components/providers/EventsProvider"
 
 function CalendarView() {
-  const [isNewModalVisible, setIsNewModalVisible] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const { loading } = useEvents();
+  const [isNewModalVisible, setIsNewModalVisible] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  const { loading } = useEvents()
 
-  const openNewEventModal = () => setIsNewModalVisible(true);
-  const closeNewEventModal = () => setIsNewModalVisible(false);
-  const openViewEventModal = (event: any) => setSelectedEvent(event);
-  const closeViewEventModal = () => setSelectedEvent(null);
+  const openNewEventModal = () => setIsNewModalVisible(true)
+  const closeNewEventModal = () => setIsNewModalVisible(false)
+  const openViewEventModal = (event: any) => setSelectedEvent(event)
+  const closeViewEventModal = () => setSelectedEvent(null)
 
   if (loading) {
     return (
       <View style={styles.spinnerContainer}>
         <ActivityIndicator size="large" color="#6200ee" />
       </View>
-    );
+    )
   }
 
   return (
@@ -33,19 +33,12 @@ function CalendarView() {
           onClose={closeNewEventModal}
         />
         {selectedEvent && (
-          <ViewEventModal
-            event={selectedEvent}
-            onClose={closeViewEventModal}
-          />
+          <ViewEventModal event={selectedEvent} onClose={closeViewEventModal} />
         )}
       </Portal>
-      <FAB
-        style={styles.fab}
-        icon="plus"
-        onPress={openNewEventModal}
-      />
+      <FAB style={styles.fab} icon="plus" onPress={openNewEventModal} />
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -60,6 +53,6 @@ const styles = StyleSheet.create({
     bottom: 16,
     backgroundColor: "#6200ee",
   },
-});
+})
 
-export default CalendarView;
+export default CalendarView

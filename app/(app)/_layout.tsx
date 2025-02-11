@@ -4,24 +4,24 @@ import { Text } from "react-native"
 import { Redirect } from "expo-router"
 
 export default function AppLayout() {
-    const { user, isLoading } = useSession();
-    
-    if (isLoading) {
-        return <Text>Loading animation to be implemented...</Text>
-    }
+  const { user, isLoading } = useSession()
 
-    if (!user) {
-        return <Redirect href="/signin" />
-    }
+  if (isLoading) {
+    return <Text>Loading animation to be implemented...</Text>
+  }
 
-    return (
-        <Stack>
-            <Stack.Screen
-                name="(tabs)"
-                options={{
-                    headerShown: false,
-                }}
-            />
-        </Stack>
-    )
+  if (!user) {
+    return <Redirect href="/signin" />
+  }
+
+  return (
+    <Stack>
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
+  )
 }

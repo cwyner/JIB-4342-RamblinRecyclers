@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, View, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react"
+import { ScrollView, View, StyleSheet } from "react-native"
 import {
   Card,
   TextInput,
@@ -11,7 +11,7 @@ import {
   Portal,
   Dialog,
   RadioButton,
-} from "react-native-paper";
+} from "react-native-paper"
 import {
   doc,
   getDoc,
@@ -22,170 +22,184 @@ import {
   collection,
   query,
   where,
-} from "firebase/firestore";
-import { useSession } from "@/components/providers/SessionProvider";
+} from "firebase/firestore"
+import { useSession } from "@/components/providers/SessionProvider"
 
 type OrgMembership = {
-  orgId: string;
-  orgName: string;
-  role: "manager" | "member" | "admin";
-};
+  orgId: string
+  orgName: string
+  role: "manager" | "member" | "admin"
+}
 
 function SettingsScreen({ theme }: { theme: any }) {
-  const { user, isLoading } = useSession();
-  const db = getFirestore();
+  const { user, isLoading } = useSession()
+  const db = getFirestore()
 
-  const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
 
-  const [organizations, setOrganizations] = useState<OrgMembership[]>([]);
+  const [organizations, setOrganizations] = useState<OrgMembership[]>([])
 
-  const [showAddOrgDialog, setShowAddOrgDialog] = useState(false);
+  const [showAddOrgDialog, setShowAddOrgDialog] = useState(false)
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
-  const [selectedRole, setSelectedRole] = useState<"manager" | "member" | "admin">("member");
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [selectedOrg, setSelectedOrg] = useState<any | null>(null)
+  const [selectedRole, setSelectedRole] = useState<
+    "manager" | "member" | "admin"
+  >("member")
 
   useEffect(() => {
     if (user) {
-      fetchUserData();
+      fetchUserData()
     }
-  }, [user]);
+  }, [user])
 
   const fetchUserData = async () => {
     try {
-      const userDocRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(userDocRef);
+      const userDocRef = doc(db, "users", user.uid)
+      const docSnap = await getDoc(userDocRef)
 
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        setUsername(data?.email ?? "");
-        setFirstName(data?.firstName ?? "");
-        setLastName(data?.lastName ?? "");
-        setOrganizations(data?.organizations ?? []);
+        const data = docSnap.data()
+        setUsername(data?.email ?? "")
+        setFirstName(data?.firstName ?? "")
+        setLastName(data?.lastName ?? "")
+        setOrganizations(data?.organizations ?? [])
       } else {
         await setDoc(userDocRef, {
           username: "",
           firstName: "",
           lastName: "",
           organizations: [],
-        });
+        })
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching user data:", error)
     }
-  };
+  }
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user) return
 
     try {
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(db, "users", user.uid)
       await updateDoc(userDocRef, {
         username,
         firstName,
         lastName,
         organizations,
-      });
-      console.log("User settings updated successfully.");
+      })
+      console.log("User settings updated successfully.")
     } catch (error) {
-      console.error("Error saving user settings:", error);
+      console.error("Error saving user settings:", error)
     }
-  };
+  }
 
   const handleShowAddOrgDialog = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-    setSelectedOrg(null);
-    setSelectedRole("member");
-    setShowAddOrgDialog(true);
-  };
+    setSearchQuery("")
+    setSearchResults([])
+    setSelectedOrg(null)
+    setSelectedRole("member")
+    setShowAddOrgDialog(true)
+  }
 
   const handleSearchOrganizations = async (queryText: string) => {
-    setSearchQuery(queryText);
+    setSearchQuery(queryText)
 
     if (queryText.length === 0) {
-      setSearchResults([]);
-      return;
+      setSearchResults([])
+      return
     }
 
     try {
-      const orgRef = collection(db, "organizations");
+      const orgRef = collection(db, "organizations")
       const qOrg = query(
         orgRef,
         where("name", ">=", queryText),
         where("name", "<=", queryText + "\uf8ff")
-      );
+      )
 
-      const snapshot = await getDocs(qOrg);
+      const snapshot = await getDocs(qOrg)
 
-      const results: any[] = [];
+      const results: any[] = []
       snapshot.forEach((docSnap) => {
-        results.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      setSearchResults(results);
+        results.push({ id: docSnap.id, ...docSnap.data() })
+      })
+      setSearchResults(results)
     } catch (error) {
-      console.error("Error searching organizations:", error);
+      console.error("Error searching organizations:", error)
     }
-  };
+  }
 
   const handleSelectOrg = (org: any) => {
-    setSelectedOrg(org);
-    setSearchResults([]);
-  };
+    setSelectedOrg(org)
+    setSearchResults([])
+  }
 
   const handleAddOrganization = async () => {
-    if (!user || !selectedOrg) return;
+    if (!user || !selectedOrg) return
 
     const newMembership: OrgMembership = {
       orgId: selectedOrg.id,
       orgName: selectedOrg.name,
       role: selectedRole,
-    };
+    }
 
-    const updatedOrgs = [...organizations, newMembership];
-    setOrganizations(updatedOrgs);
+    const updatedOrgs = [...organizations, newMembership]
+    setOrganizations(updatedOrgs)
 
     try {
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(db, "users", user.uid)
       await updateDoc(userDocRef, {
         organizations: updatedOrgs,
-      });
+      })
     } catch (error) {
-      console.error("Error adding organization to user:", error);
+      console.error("Error adding organization to user:", error)
     }
 
-    setShowAddOrgDialog(false);
-  };
+    setShowAddOrgDialog(false)
+  }
 
   const handleRemoveOrganization = (index: number) => {
-    const updatedOrgs = organizations.filter((_, i) => i !== index);
-    setOrganizations(updatedOrgs);
+    const updatedOrgs = organizations.filter((_, i) => i !== index)
+    setOrganizations(updatedOrgs)
 
     if (user) {
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(db, "users", user.uid)
       updateDoc(userDocRef, {
         organizations: updatedOrgs,
-      }).catch((err) => console.error("Error removing organization:", err));
+      }).catch((err) => console.error("Error removing organization:", err))
     }
-  };
+  }
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 16 }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          padding: 16,
+        }}
+      >
         <Subheading>Loading user data...</Subheading>
       </View>
-    );
+    )
   }
 
   if (!user) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 16 }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          padding: 16,
+        }}
+      >
         <Subheading>Please sign in to view your settings.</Subheading>
       </View>
-    );
+    )
   }
 
   return (
@@ -212,7 +226,9 @@ function SettingsScreen({ theme }: { theme: any }) {
             style={{ marginBottom: 16 }}
           />
 
-          <Subheading style={{ marginTop: 16, marginBottom: 8 }}>Organizations</Subheading>
+          <Subheading style={{ marginTop: 16, marginBottom: 8 }}>
+            Organizations
+          </Subheading>
           {organizations.map((membership, index) => (
             <List.Item
               key={index}
@@ -244,7 +260,10 @@ function SettingsScreen({ theme }: { theme: any }) {
       </Card>
 
       <Portal>
-        <Dialog visible={showAddOrgDialog} onDismiss={() => setShowAddOrgDialog(false)}>
+        <Dialog
+          visible={showAddOrgDialog}
+          onDismiss={() => setShowAddOrgDialog(false)}
+        >
           <Dialog.Title>Add Organization</Dialog.Title>
           <Dialog.Content>
             <TextInput
@@ -289,23 +308,20 @@ function SettingsScreen({ theme }: { theme: any }) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setShowAddOrgDialog(false)}>Cancel</Button>
-            <Button
-              onPress={handleAddOrganization}
-              disabled={!selectedOrg}
-            >
+            <Button onPress={handleAddOrganization} disabled={!selectedOrg}>
               Add
             </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   card: {
     margin: 16,
   },
-});
+})
 
-export default withTheme(SettingsScreen);
+export default withTheme(SettingsScreen)
