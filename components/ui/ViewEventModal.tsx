@@ -1,41 +1,41 @@
-import React, { useState } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import { Modal, TextInput, Button } from "react-native-paper";
-import { useEvents } from "@/components/providers/EventsProvider";
+import React, { useState } from "react"
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
+import { Modal, TextInput, Button } from "react-native-paper"
+import { useEvents } from "@/components/providers/EventsProvider"
 
 interface ViewEventModalProps {
-  event: any;
-  onClose: () => void;
+  event: any
+  onClose: () => void
 }
 
 function ViewEventModal({ event, onClose }: ViewEventModalProps) {
-  const { removeEvent, addEvent } = useEvents();
+  const { removeEvent, addEvent } = useEvents()
 
-  const [title, setTitle] = useState(event.title || "");
-  const [hour, setHour] = useState(event.hour || "");
-  const [duration, setDuration] = useState(event.duration || "");
-  const [description, setDescription] = useState(event.description || "");
-  const [date, setDate] = useState(event.date || "");
+  const [title, setTitle] = useState(event.title || "")
+  const [hour, setHour] = useState(event.hour || "")
+  const [duration, setDuration] = useState(event.duration || "")
+  const [description, setDescription] = useState(event.description || "")
+  const [date, setDate] = useState(event.date || "")
 
   const handleDelete = () => {
     if (date && title) {
-      removeEvent(date, title);
+      removeEvent(date, title)
     } else {
-      console.error("Error: Date or title is missing when deleting an event.");
+      console.error("Error: Date or title is missing when deleting an event.")
     }
-    onClose();
-  };
+    onClose()
+  }
 
   const handleUpdate = async () => {
     if (!title || !date || !hour || !duration) {
-      alert("Please fill all required fields.");
-      return;
+      alert("Please fill all required fields.")
+      return
     }
 
-    await removeEvent(event.date, event.title);
-    await addEvent(date, { title, hour, duration, description, date });
-    onClose();
-  };
+    await removeEvent(event.date, event.title)
+    await addEvent(date, { title, hour, duration, description, date })
+    onClose()
+  }
 
   return (
     <Modal
@@ -90,7 +90,7 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
         </Button>
       </KeyboardAvoidingView>
     </Modal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -104,6 +104,6 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 15,
   },
-});
+})
 
-export default ViewEventModal;
+export default ViewEventModal

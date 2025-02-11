@@ -1,11 +1,8 @@
-import React from "react";
-import { View } from "react-native";
-import {
-  withTheme,
-  Portal,
-} from "react-native-paper";
-import EventsProvider from "@/components/providers/EventsProvider";
-import CalendarView from "@/components/ui/CalendarView";
+import React from "react"
+import { View } from "react-native"
+import { withTheme, Portal } from "react-native-paper"
+import EventsProvider from "@/components/providers/EventsProvider"
+import CalendarView from "@/components/ui/CalendarView"
 
 function Home({ theme }: { theme: any }) {
   return (
@@ -16,6 +13,6 @@ function Home({ theme }: { theme: any }) {
         </Portal.Host>
       </EventsProvider>
     </View>
-  );
+  )
 }
-export default withTheme(Home);
+export default withTheme(Home)

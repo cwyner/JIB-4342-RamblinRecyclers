@@ -1,9 +1,9 @@
-import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import React from "react"
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native"
 
 interface AgendaItemProps {
-  item: any;
-  onPress: () => void;
+  item: any
+  onPress: () => void
 }
 
 function AgendaItem({ item, onPress }: AgendaItemProps) {
@@ -12,7 +12,7 @@ function AgendaItem({ item, onPress }: AgendaItemProps) {
       <Text style={styles.itemTitle}>{item.title}</Text>
       <Text style={styles.itemHour}>{item.hour}</Text>
     </TouchableOpacity>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -30,6 +30,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-});
+})
 
-export default AgendaItem;
+export default AgendaItem
