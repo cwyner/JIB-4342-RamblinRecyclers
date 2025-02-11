@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
+import { StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
 import {
   Modal,
   TextInput,
@@ -7,6 +7,7 @@ import {
   withTheme,
   HelperText,
 } from "react-native-paper"
+import { TimePickerModal } from "react-native-paper-dates"
 import { useEvents } from "@/components/providers/EventsProvider"
 
 interface NewEventModalProps {
@@ -18,11 +19,22 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
   const { addEvent } = useEvents()
 
   const [title, setTitle] = useState("")
+  // We'll remove the plain text hour input and use the time picker instead.
   const [hour, setHour] = useState("")
   const [duration, setDuration] = useState("")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState("")
   const [team, setTeam] = useState("")
+
+  // State to control the visibility of the time picker modal.
+  const [openTimePicker, setOpenTimePicker] = useState(false)
+
+  // Helper to format the time into a string (e.g., "9:00 AM").
+  const formatTime = (hours: number, minutes: number) => {
+    const period = hours >= 12 ? "PM" : "AM"
+    const hour12 = hours % 12 === 0 ? 12 : hours % 12
+    return `${hour12}:${minutes < 10 ? "0" : ""}${minutes} ${period}`
+  }
 
   const handleAddEvent = () => {
     if (!title || !date || !hour || !duration) {
@@ -41,6 +53,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
 
     onClose()
 
+    // Reset all fields
     setTitle("")
     setHour("")
     setDuration("")
@@ -65,6 +78,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           style={styles.input}
           mode="outlined"
         />
+
         <TextInput
           label="Date (YYYY-MM-DD)"
           value={date}
@@ -72,13 +86,16 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           style={styles.input}
           mode="outlined"
         />
-        <TextInput
-          label="Hour (e.g., 9am)"
-          value={hour}
-          onChangeText={setHour}
-          style={styles.input}
+
+        {/* Replace the plain "Hour" input with a button that shows the time picker */}
+        <Button
           mode="outlined"
-        />
+          onPress={() => setOpenTimePicker(true)}
+          style={styles.input}
+        >
+          {hour ? `Time: ${hour}` : "Select Time"}
+        </Button>
+
         <TextInput
           label="Duration (e.g., 1h)"
           value={duration}
@@ -86,6 +103,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           style={styles.input}
           mode="outlined"
         />
+
         <TextInput
           label="Description"
           value={description}
@@ -94,6 +112,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           mode="outlined"
           multiline
         />
+
         <TextInput
           label="Team"
           placeholder="Team name or ID"
@@ -102,6 +121,7 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           style={styles.input}
           mode="outlined"
         />
+
         <HelperText type="info" visible={true}>
           Optional: Assign this event to a specific team.
         </HelperText>
@@ -110,6 +130,21 @@ function NewEventModal({ visible, onClose }: NewEventModalProps) {
           Add Event
         </Button>
       </KeyboardAvoidingView>
+
+      {/* Time Picker Modal from react-native-paper-dates */}
+      <TimePickerModal
+        visible={openTimePicker}
+        onDismiss={() => setOpenTimePicker(false)}
+        onConfirm={({ hours, minutes }) => {
+          // Format the chosen time and store it in state.
+          setHour(formatTime(hours, minutes))
+          setOpenTimePicker(false)
+        }}
+        hours={0} // default hour (optional)
+        minutes={0} // default minute (optional)
+        label="Select time" // optional
+        uppercase={false} // optional, controls the text style of the action buttons
+      />
     </Modal>
   )
 }
