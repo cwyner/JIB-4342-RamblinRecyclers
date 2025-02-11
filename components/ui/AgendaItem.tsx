@@ -1,9 +1,11 @@
 import React from "react"
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native"
+import { Checkbox } from "react-native-paper"
 
 interface AgendaItemProps {
   item: any
   onPress: () => void
+  onToggleComplete: (id: string | number, newStatus: boolean) => void
 }
 
 function AgendaItem({ item, onPress, onToggleComplete }: AgendaItemProps) {
