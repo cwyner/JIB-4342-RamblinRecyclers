@@ -8,15 +8,15 @@ interface CalendarAgendaProps {
 }
 
 function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
-  const { agendaItems } = useEvents();
+  const { agendaItems, updateEvent } = useEvents();
 
-  const renderItem = (item: any) => {
-    if (!item || Object.keys(item).length === 0) {
-        return null;
-    }
+  const toggleComplete = async (id: string, completed: boolean) => {
+    await updateEvent(id, { completed });
+  };
 
-    return <AgendaItem item={item} onPress={() => onEventPress(item)} />
-}
+  const renderItem = (item: any) => (
+    <AgendaItem item={item} onPress={() => onEventPress(item)} onToggleComplete={toggleComplete} />
+  );
 
   return (
     <Agenda

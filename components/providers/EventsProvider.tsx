@@ -21,12 +21,14 @@ import { useSession } from "@/components/providers/SessionProvider";
 import { withTheme } from "react-native-paper";
 
 interface Event {
+  id?: string;
   hour: string;
   duration: string;
   title: string;
   description?: string;
   date: string;
-  teamName?: string;  // <-- Team name instead of teamId
+  teamName?: string;
+  completed?: boolean; // Added completed field
 }
 
 interface AgendaItem {
@@ -38,6 +40,7 @@ interface EventsContextType {
   agendaItems: AgendaItem[];
   addEvent: (date: string, event: Event) => Promise<void>;
   removeEvent: (date: string, title: string) => Promise<void>;
+  updateEvent: (eventId: string, updatedFields: Partial<Event>) => Promise<void>;
   loading: boolean;
 }
 
@@ -79,6 +82,7 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
           const data = docSnap.data() as Event & { date?: string };
           return {
             ...data,
+            id: docSnap.id,
             date: data.date ?? docSnap.id,
           };
         });
@@ -106,43 +110,19 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
     fetchEvents();
   }, [user, db]);
 
-  /**
-   * addEvent
-   * 
-   * - Saves the event to the 'events' collection.
-   * - If `teamName` is set, looks up the team document by that name,
-   *   and updates its `eventIds` array with the new event's document ID.
-   */
   const addEvent = async (date: string, event: Event) => {
     setLoading(true);
     try {
-      // 1) Construct the new event object
-      const newEvent = { ...event, date, userId: user?.uid };
-
-      // 2) Add the event to Firestore (in /events)
+      const newEvent = { ...event, date, userId: user?.uid, completed: false };
       const eventRef = await addDoc(collection(db, "events"), newEvent);
 
-      // 3) If the event has a teamName, find that team doc and update the eventIds array
-      if (event.teamName && event.teamName.trim().length > 0) {
-        const teamsRef = collection(db, "teams");
-        const teamQuery = query(teamsRef, where("name", "==", event.teamName.trim()));
-        const teamSnapshot = await getDocs(teamQuery);
-
-        const teamDoc = teamSnapshot.docs[0];
-        await updateDoc(doc(db, "teams", teamDoc.id), {
-          eventIds: arrayUnion(eventRef.id),
-        });
-
-      }
-
-      // 4) Update the local agenda state
       setAgendaItems((prevItems) => {
         const existingDate = prevItems.find((item) => item.title === date);
         if (existingDate) {
-          existingDate.data.push(newEvent);
+          existingDate.data.push({ ...newEvent, id: eventRef.id });
           return [...prevItems];
         } else {
-          return [...prevItems, { title: date, data: [newEvent] }];
+          return [...prevItems, { title: date, data: [{ ...newEvent, id: eventRef.id }] }];
         }
       });
     } catch (error) {
@@ -152,17 +132,7 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
     }
   };
 
-  /**
-   * removeEvent
-   * 
-   * - Finds all events that match the provided date/title (for the current user),
-   *   and deletes them from /events in Firestore.
-   * - Updates local state accordingly.
-   */
   const removeEvent = async (date: string, title: string) => {
-    console.log("Remove Event - Date:", date);
-    console.log("Remove Event - Title:", title);
-
     if (!user) return;
     if (!date || !title) {
       console.error("Error: Date or Title is undefined in removeEvent.");
@@ -178,32 +148,41 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
       );
       const snapshot = await getDocs(eventsQuery);
 
-      // Delete all matching events
-      const deletePromises = snapshot.docs.map((docSnap) =>
-        deleteDoc(docSnap.ref)
-      );
+      const deletePromises = snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
       await Promise.all(deletePromises);
 
-      // Update local state
       setAgendaItems((prevItems) =>
-        prevItems
-          .map((item) =>
-            item.title === date
-              ? {
-                  ...item,
-                  data: item.data.filter((ev) => ev.title !== title),
-                }
-              : item
-          )
-          .filter((item) => item.data.length > 0)
+        prevItems.map((item) =>
+          item.title === date
+            ? { ...item, data: item.data.filter((ev) => ev.title !== title) }
+            : item
+        ).filter((item) => item.data.length > 0)
       );
     } catch (error) {
       console.error("Error deleting event:", error);
     }
   };
 
+  const updateEvent = async (eventId: string, updatedFields: Partial<Event>) => {
+    try {
+      const eventRef = doc(db, "events", eventId);
+      await updateDoc(eventRef, updatedFields);
+
+      setAgendaItems((prevItems) =>
+        prevItems.map((item) => ({
+          ...item,
+          data: item.data.map((ev) =>
+            ev.id === eventId ? { ...ev, ...updatedFields } : ev
+          ),
+        }))
+      );
+    } catch (error) {
+      console.error("Error updating event:", error);
+    }
+  };
+
   return (
-    <EventsContext.Provider value={{ agendaItems, addEvent, removeEvent, loading }}>
+    <EventsContext.Provider value={{ agendaItems, addEvent, removeEvent, updateEvent, loading }}>
       {children}
     </EventsContext.Provider>
   );
