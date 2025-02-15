@@ -1,6 +1,7 @@
 import React, { useState } from "react"
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
+import { StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
 import { Modal, TextInput, Button } from "react-native-paper"
+import { DatePickerModal, TimePickerModal } from "react-native-paper-dates"
 import { useEvents } from "@/components/providers/EventsProvider"
 
 interface ViewEventModalProps {
@@ -16,6 +17,22 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
   const [duration, setDuration] = useState(event.duration || "")
   const [description, setDescription] = useState(event.description || "")
   const [date, setDate] = useState(event.date || "")
+
+  const [openDatePicker, setOpenDatePicker] = useState(false)
+  const [openTimePicker, setOpenTimePicker] = useState(false)
+
+  const formatTime = (hours: number, minutes: number) => {
+    const period = hours >= 12 ? "PM" : "AM"
+    const hour12 = hours % 12 === 0 ? 12 : hours % 12
+    return `${hour12}:${minutes < 10 ? "0" : ""}${minutes} ${period}`
+  }
+
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, "0")
+    const day = date.getDate().toString().padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
 
   const handleDelete = () => {
     if (date && title) {
@@ -43,9 +60,7 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
       onDismiss={onClose}
       contentContainerStyle={styles.modalContainer}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <TextInput
           label="Title"
           value={title}
@@ -53,20 +68,15 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
           style={styles.input}
           mode="outlined"
         />
-        <TextInput
-          label="Date (YYYY-MM-DD)"
-          value={date}
-          onChangeText={setDate}
-          style={styles.input}
-          mode="outlined"
-        />
-        <TextInput
-          label="Hour (e.g., 9am)"
-          value={hour}
-          onChangeText={setHour}
-          style={styles.input}
-          mode="outlined"
-        />
+
+        <Button mode="outlined" onPress={() => setOpenDatePicker(true)} style={styles.input}>
+          {date ? `Date: ${date}` : "Select Date"}
+        </Button>
+
+        <Button mode="outlined" onPress={() => setOpenTimePicker(true)} style={styles.input}>
+          {hour ? `Time: ${hour}` : "Select Time"}
+        </Button>
+
         <TextInput
           label="Duration (e.g., 1h)"
           value={duration}
@@ -74,6 +84,7 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
           style={styles.input}
           mode="outlined"
         />
+
         <TextInput
           label="Description"
           value={description}
@@ -82,6 +93,7 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
           mode="outlined"
           multiline
         />
+
         <Button mode="contained" onPress={handleUpdate}>
           Update Event
         </Button>
@@ -89,6 +101,31 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
           Delete Event
         </Button>
       </KeyboardAvoidingView>
+
+      <DatePickerModal
+        locale="en"
+        mode="single"
+        visible={openDatePicker}
+        onDismiss={() => setOpenDatePicker(false)}
+        date={date ? new Date(date) : new Date()}
+        onConfirm={({ date: selectedDate }) => {
+          setDate(formatDate(selectedDate))
+          setOpenDatePicker(false)
+        }}
+      />
+
+      <TimePickerModal
+        visible={openTimePicker}
+        onDismiss={() => setOpenTimePicker(false)}
+        onConfirm={({ hours, minutes }) => {
+          setHour(formatTime(hours, minutes))
+          setOpenTimePicker(false)
+        }}
+        hours={0}
+        minutes={0}
+        label="Select Time"
+        uppercase={false}
+      />
     </Modal>
   )
 }
