@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Agenda } from "react-native-calendars";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 import { useEvents } from "@/components/providers/EventsProvider";
 import AgendaItem from "@/components/ui/AgendaItem";
+import NewEventModal from "@/components/ui/NewEventModal";
+import { AntDesign } from "@expo/vector-icons";
 
 interface CalendarAgendaProps {
   onEventPress: (event: any) => void;
@@ -18,6 +20,7 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
 
   const { agendaItems, loading } = eventsContext;
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     setSelectedDate(new Date().toISOString().split("T")[0]);
@@ -71,6 +74,14 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
           )
         }
       />
+
+      {/* Floating Add Button */}
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <AntDesign name="plus" size={28} color="white" />
+      </TouchableOpacity>
+
+      {/* New Event Modal */}
+      <NewEventModal visible={modalVisible} onClose={() => setModalVisible(false)} />
     </View>
   );
 }
@@ -85,6 +96,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 10,
     marginBottom: 5,
+  },
+  addButton: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    backgroundColor: "#6200ee",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 5,
   },
   emptyContainer: {
     alignItems: "center",
