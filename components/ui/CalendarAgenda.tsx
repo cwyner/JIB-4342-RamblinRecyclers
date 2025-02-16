@@ -21,10 +21,49 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
   const { agendaItems, loading } = eventsContext;
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showWeekly, setShowWeekly] = useState(false);
+
+  const getWeekDates = (date: string) => {
+    const current = new Date(date);
+    const startOfWeek = new Date(current);
+    const endOfWeek = new Date(current);
+
+    startOfWeek.setDate(current.getDate() - current.getDay()); // Start from Sunday
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // End on Saturday
+
+    const dates = [];
+    for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
+      dates.push(new Date(d).toISOString().split("T")[0]);
+    }
+    return dates;
+  };
+
+  const getAgendaItems = (dates: string[]) => {
+    const agenda = {};
+
+    dates.forEach((date) => {
+      agenda[date] = [];
+    });
+
+    agendaItems.forEach(({ title, data }) => {
+      data.forEach((event: any) => {
+        if (agenda[event.date]) {
+          agenda[event.date].push(event);
+        }
+      });
+    });
+
+    return agenda;
+  };
+
+  const weekDates = getWeekDates(selectedDate);
+  const allAgendaItems = getAgendaItems(weekDates);
+
+  const hasEventsOnDate = (date: string) => allAgendaItems[date] && allAgendaItems[date].length > 0;
 
   useEffect(() => {
-    setSelectedDate(new Date().toISOString().split("T")[0]);
-  }, [agendaItems]);
+    setShowWeekly(!hasEventsOnDate(selectedDate));
+  }, [selectedDate, allAgendaItems]);
 
   const navigateWeek = (direction: "prev" | "next") => {
     const newDate = new Date(selectedDate);
@@ -48,17 +87,7 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
       </View>
 
       <Agenda
-        items={
-          agendaItems
-            ? agendaItems.reduce(
-                (acc, { title, data }) => ({
-                  ...acc,
-                  [title]: data,
-                }),
-                {}
-              )
-            : {}
-        }
+        items={showWeekly ? allAgendaItems : { [selectedDate]: allAgendaItems[selectedDate] }}
         selected={selectedDate}
         renderItem={renderItem}
         onDayPress={(day) => setSelectedDate(day.dateString)}
@@ -69,7 +98,9 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
             </View>
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No events scheduled for today.</Text>
+              <Text style={styles.emptyText}>
+                {showWeekly ? "No events today, showing weekly overview." : "No events scheduled for today."}
+              </Text>
             </View>
           )
         }
