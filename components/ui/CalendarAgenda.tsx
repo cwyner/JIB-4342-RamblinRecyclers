@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Agenda } from "react-native-calendars";
-import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useEvents } from "@/components/providers/EventsProvider";
 import AgendaItem from "@/components/ui/AgendaItem";
 import NewEventModal from "@/components/ui/NewEventModal";
@@ -88,7 +88,6 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
         item={item}
         onPress={() => onEventPress(item)}
         onToggleComplete={(id, completed) => {
-          // Call a function to update the event's completion status
           updateEventCompletion(id, completed);
         }}
       />
@@ -97,10 +96,19 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
 
   return (
     <View style={styles.container}>
-      {/* Navigation Buttons at the Top */}
-      <View style={styles.buttonContainer}>
-        <Button title="Previous Week" onPress={() => navigateWeek("prev")} />
-        <Button title="Next Week" onPress={() => navigateWeek("next")} />
+      {/* Date and Navigation Buttons Row */}
+      <View style={styles.topRow}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigateWeek("prev")}>
+          <Text style={styles.navButtonText}>←</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.dateBox}>
+          <Text style={styles.dateText}>{selectedDate}</Text>
+        </View>
+        
+        <TouchableOpacity style={styles.navButton} onPress={() => navigateWeek("next")}>
+          <Text style={styles.navButtonText}>→</Text>
+        </TouchableOpacity>
       </View>
 
       <Agenda
@@ -137,22 +145,58 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f4f4f8", // Light background for better readability
   },
-  buttonContainer: {
+  topRow: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
     marginHorizontal: 20,
     marginTop: 10,
-    marginBottom: 5,
+    marginBottom: 8,
+  },
+  dateBox: {
+    backgroundColor: "#6200ee",
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
+  },
+  navButton: {
+    backgroundColor: "#6200ee",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  navButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
   },
   addButton: {
     position: "absolute",
     right: 20,
     bottom: 20,
     backgroundColor: "#6200ee",
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
     elevation: 5,
