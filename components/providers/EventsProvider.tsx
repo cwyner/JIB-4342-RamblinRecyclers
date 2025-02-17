@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useState,
   PropsWithChildren,
-} from "react"
+} from "react";
 import {
   getFirestore,
   collection,
@@ -16,141 +16,143 @@ import {
   query,
   where,
   arrayUnion,
-} from "firebase/firestore"
-import { useSession } from "@/components/providers/SessionProvider"
-import { withTheme } from "react-native-paper"
+} from "firebase/firestore";
+import { useSession } from "@/components/providers/SessionProvider";
+import { withTheme } from "react-native-paper";
 
 interface Event {
-  hour: string
-  duration: string
-  title: string
-  description?: string
-  date: string
-  teamName?: string
+  hour: string;
+  duration: string;
+  title: string;
+  description?: string;
+  date: string;
+  teamName?: string;
+  completed?: boolean; // Add this field to support "cross off" functionality
 }
 
 interface AgendaItem {
-  title: string
-  data: Event[]
+  title: string;
+  data: Event[];
 }
 
 interface EventsContextType {
-  agendaItems: AgendaItem[]
-  addEvent: (date: string, event: Event) => Promise<void>
-  removeEvent: (date: string, title: string) => Promise<void>
-  loading: boolean
+  agendaItems: AgendaItem[];
+  addEvent: (date: string, event: Event) => Promise<void>;
+  removeEvent: (date: string, title: string) => Promise<void>;
+  updateEvent: (eventId: string, updatedFields: Partial<Event>) => Promise<void>;
+  loading: boolean;
 }
 
-const EventsContext = createContext<EventsContextType | undefined>(undefined)
+const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
 export function useEvents() {
-  const context = useContext(EventsContext)
+  const context = useContext(EventsContext);
   if (!context) {
-    throw new Error("useEvents must be used within an EventsProvider")
+    throw new Error("useEvents must be used within an EventsProvider");
   }
-  return context
+  return context;
 }
 
 function EventsProvider({ children }: PropsWithChildren<{}>) {
-  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const { user } = useSession()
-  const db = getFirestore()
+  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useSession();
+  const db = getFirestore();
 
   useEffect(() => {
-    if (!user) return
+    if (!user) return;
 
     const fetchEvents = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const eventsQuery = query(
           collection(db, "events"),
           where("userId", "==", user.uid)
-        )
-        const snapshot = await getDocs(eventsQuery)
+        );
+        const snapshot = await getDocs(eventsQuery);
 
         if (snapshot.empty) {
-          setAgendaItems([])
-          setLoading(false)
-          return
+          setAgendaItems([]);
+          setLoading(false);
+          return;
         }
 
         const events = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data() as Event & { date?: string }
+          const data = docSnap.data() as Event & { date?: string };
           return {
             ...data,
             id: docSnap.id,
             date: data.date ?? docSnap.id,
-          }
-        })
+          };
+        });
 
         const formattedEvents = events.reduce<AgendaItem[]>((acc, event) => {
-          const existingDate = acc.find((item) => item.title === event.date)
+          const existingDate = acc.find((item) => item.title === event.date);
 
           if (existingDate) {
-            existingDate.data.push(event)
+            existingDate.data.push(event);
           } else {
-            acc.push({ title: event.date, data: [event] })
+            acc.push({ title: event.date, data: [event] });
           }
 
-          return acc
-        }, [])
+          return acc;
+        }, []);
 
-        setAgendaItems(formattedEvents)
+        setAgendaItems(formattedEvents);
       } catch (error) {
-        console.error("Error fetching events:", error)
+        console.error("Error fetching events:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchEvents()
-  }, [user, db])
+    fetchEvents();
+  }, [user, db]);
 
   const addEvent = async (date: string, event: Event) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const newEvent = { ...event, date, userId: user?.uid }
+      const newEvent = { ...event, date, userId: user?.uid, completed: false }; // Ensure new events are marked as incomplete by default
 
-      const eventRef = await addDoc(collection(db, "events"), newEvent)
+      const eventRef = await addDoc(collection(db, "events"), newEvent);
 
       if (event.teamName && event.teamName.trim().length > 0) {
-        const teamsRef = collection(db, "teams")
+        const teamsRef = collection(db, "teams");
         const teamQuery = query(
           teamsRef,
           where("name", "==", event.teamName.trim())
-        )
-        const teamSnapshot = await getDocs(teamQuery)
+        );
+        const teamSnapshot = await getDocs(teamQuery);
 
-        const teamDoc = teamSnapshot.docs[0]
+        const teamDoc = teamSnapshot.docs[0];
         await updateDoc(doc(db, "teams", teamDoc.id), {
           eventIds: arrayUnion(eventRef.id),
-        })
+        });
       }
       setAgendaItems((prevItems) => {
-        const existingDate = prevItems.find((item) => item.title === date)
+        const existingDate = prevItems.find((item) => item.title === date);
         if (existingDate) {
-          existingDate.data.push(newEvent)
-          return [...prevItems]
+          existingDate.data.push(newEvent);
+          return [...prevItems];
         } else {
-          return [...prevItems, { title: date, data: [newEvent] }]
+          return [...prevItems, { title: date, data: [newEvent] }];
         }
-      })
+      });
     } catch (error) {
-      console.error("Error adding event to Firestore:", error)
+      console.error("Error adding event to Firestore:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const removeEvent = async (date: string, title: string) => {
-    console.log("Remove Event - Date:", date)
-    console.log("Remove Event - Title:", title)
+    console.log("Remove Event - Date:", date);
+    console.log("Remove Event - Title:", title);
 
-    if (!user) return
+    if (!user) return;
     if (!date || !title) {
-      console.error("Error: Date or Title is undefined in removeEvent.")
-      return
+      console.error("Error: Date or Title is undefined in removeEvent.");
+      return;
     }
 
     try {
@@ -159,13 +161,13 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
         where("userId", "==", user.uid),
         where("date", "==", date),
         where("title", "==", title)
-      )
-      const snapshot = await getDocs(eventsQuery)
+      );
+      const snapshot = await getDocs(eventsQuery);
 
       const deletePromises = snapshot.docs.map((docSnap) =>
         deleteDoc(docSnap.ref)
-      )
-      await Promise.all(deletePromises)
+      );
+      await Promise.all(deletePromises);
 
       setAgendaItems((prevItems) =>
         prevItems
@@ -178,11 +180,11 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
               : item
           )
           .filter((item) => item.data.length > 0)
-      )
+      );
     } catch (error) {
-      console.error("Error deleting event:", error)
+      console.error("Error deleting event:", error);
     }
-  }
+  };
 
   const updateEvent = async (eventId: string, updatedFields: Partial<Event>) => {
     try {
@@ -204,11 +206,11 @@ function EventsProvider({ children }: PropsWithChildren<{}>) {
 
   return (
     <EventsContext.Provider
-      value={{ agendaItems, addEvent, removeEvent, loading }}
+      value={{ agendaItems, addEvent, removeEvent, updateEvent, loading }}
     >
       {children}
     </EventsContext.Provider>
-  )
+  );
 }
 
-export default withTheme(EventsProvider)
+export default withTheme(EventsProvider);

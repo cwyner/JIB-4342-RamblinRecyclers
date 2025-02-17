@@ -71,11 +71,28 @@ function CalendarAgenda({ onEventPress }: CalendarAgendaProps) {
     setSelectedDate(newDate.toISOString().split("T")[0]);
   };
 
+  const updateEventCompletion = async (eventId: string, completed: boolean) => {
+    try {
+      await eventsContext.updateEvent(eventId, { completed });
+    } catch (error) {
+      console.error("Error updating event completion:", error);
+    }
+  };
+
   const renderItem = (item: any) => {
     if (!item || Object.keys(item).length === 0) {
       return null;
     }
-    return <AgendaItem item={item} onPress={() => onEventPress(item)} />;
+    return (
+      <AgendaItem
+        item={item}
+        onPress={() => onEventPress(item)}
+        onToggleComplete={(id, completed) => {
+          // Call a function to update the event's completion status
+          updateEventCompletion(id, completed);
+        }}
+      />
+    );
   };
 
   return (
