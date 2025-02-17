@@ -7,6 +7,22 @@ The Upcycle Build application aims to assist those who work in the reuse industr
 Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for the fast-paced environment they work in.
 
 # Release Notes
+## v0.2.0
+### Features
+- Next and Previous Week buttons for calendar navigation
+- Weekly Preview
+- Date and Time Picker modals
+- Ability to check tasks off
+- Map view
+
+### Bug Fixes
+- Fixed "loading" icon bug from v0.1.0, now shows message "No events scheduled for today" when day is empty.
+- Added header (i.e. icon with yyyy-dd-mm) to weekly preview for user convenience
+
+### Known Issues
+- "Remember me" on login does not work (denies login)
+- Clicking between days will sometimes show an arbitrary range of days on the preview, not always the 7 days in the week
+
 ## v0.1.0
 ### Features
 - Registration Screen
