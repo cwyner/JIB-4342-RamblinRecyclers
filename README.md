@@ -16,7 +16,7 @@ Each of these parts makes up an app that provides a quality-of-life service to a
 - Map view
 
 ### Bug Fixes
-- Fixed "loading" icon bug from v0.1.0, now shows message "No events scheduled for today" when day is empty.
+- Fixed "loading" icon bug from v0.1.0, now shows message "No events scheduled for today" when day is empty
 - Added header (i.e. icon with yyyy-dd-mm) to weekly preview for user convenience
 
 ### Known Issues
