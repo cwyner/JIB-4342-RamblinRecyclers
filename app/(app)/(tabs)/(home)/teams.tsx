@@ -65,6 +65,8 @@ function TeamsScreen({ theme }: { theme: any }) {
 
   const [showTasksDialog, setShowTasksDialog] = useState(false)
   const [teamTasks, setTeamTasks] = useState(null)
+  const [currentlySelectedMember, setCurrentlySelectedMember] = useState(null)
+  const [currentlySelectedEvent, setCurrentlySelectedEvent] = useState(null)
 
   const [newMemberEmail, setNewMemberEmail] = useState("")
   const [newMemberRole, setNewMemberRole] = useState<"member" | "manager">(
@@ -264,6 +266,27 @@ function TeamsScreen({ theme }: { theme: any }) {
       // Assign to the database
   }
 
+  const handleApplyTask = async(member, task) => {
+        //if (!member | !task) {return;}
+        try {
+            // 1. Find the user
+            const memberRef = doc(db, 'users', member.uid)
+            const mDoc = await getDoc(memberRef)
+            if (!mDoc.exists()) {
+                console.error("No member with this id exists!")
+                return;
+            }
+            const mData = mDoc.data()
+
+            // 2. Add task to tasks item
+            await updateDoc(memberRef, {taskIDs: arrayUnion(task.title),})
+            // 3. save
+            console.log("Saved!")
+        } catch (error) {
+            console.error(error)
+        }
+      }
+
   if (isLoading) {
     return (
       <View
@@ -376,6 +399,7 @@ function TeamsScreen({ theme }: { theme: any }) {
                       icon="account-multiple-plus"
                       onPress={() => {
                         //Assign tasks
+                        setCurrentlySelectedMember(m)
                         setShowTasksDialog(true)
                       }}
                       />
@@ -389,7 +413,7 @@ function TeamsScreen({ theme }: { theme: any }) {
       </Dialog>
       </Portal>
 
-      {/* Show Takss Dialog */}
+      {/* Show Tasks Dialog */}
       <Portal>
       <Dialog
       visible={showTasksDialog}
@@ -404,6 +428,11 @@ function TeamsScreen({ theme }: { theme: any }) {
           >
           <List.Item
           title={task.title}
+          onPress={() => {
+              // Set member to have task
+              setCurrentlySelectedEvent(task)
+              handleApplyTask(currentlySelectedMember, task)
+              }}
           />
           </View>
           )})}
