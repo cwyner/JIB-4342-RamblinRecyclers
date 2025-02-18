@@ -50,6 +50,10 @@ function TeamsScreen({ theme }: { theme: any }) {
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false)
   const [targetTeam, setTargetTeam] = useState<Team | null>(null)
 
+  const [showManageTeamDialog, setShowManageTeamDialog] = useState(false)
+  const [manageTeam, setManageTeam] = useState<Team | null>(null)
+  const [memberNames, setMemberNames] = useState(null)
+
   const [newMemberEmail, setNewMemberEmail] = useState("")
   const [newMemberRole, setNewMemberRole] = useState<"member" | "manager">(
     "member"
@@ -120,6 +124,25 @@ function TeamsScreen({ theme }: { theme: any }) {
   const isOrgAdmin = (orgId: string): boolean => {
     const membership = userOrgs.find((o) => o.orgId === orgId)
     return membership?.role === "admin"
+  }
+  const getMemberNames = async (team): String[] => {
+      try {
+          const foundMemberNames = {}
+          await Promise.all(
+              team.members.map(async (m) => {
+                  const memberRef = doc(db, 'users', m.uid)
+                  const mDoc = await getDoc(memberRef)
+                  if (mDoc.exists()) {
+                      const mData = mDoc.data()
+                      foundMemberNames[m.uid] = mData.firstName + " " + mData.lastName
+                  }
+                  })
+              )
+          setMemberNames(foundMemberNames)
+      } catch (error) {
+          console.error(error)
+          return ""
+      }
   }
 
   const handleCreateTeam = async () => {
@@ -198,6 +221,11 @@ function TeamsScreen({ theme }: { theme: any }) {
     setShowAddMemberDialog(false)
   }
 
+  const handleManageTeam = async () => {
+      if (!targetTeam) {return;}
+      // Assign to the database
+  }
+
   if (isLoading) {
     return (
       <View
@@ -248,7 +276,11 @@ function TeamsScreen({ theme }: { theme: any }) {
                 <List.Item
                   title={team.name}
                   description={`Org: ${orgName}`}
-                  onPress={() => {}}
+                  onPress={() => {
+                      getMemberNames(team)
+                      setTargetTeam(team)
+                      setShowManageTeamDialog(true)
+                  }}
                 />
                 {isOrgAdmin(team.orgId) && (
                   <IconButton
@@ -275,6 +307,39 @@ function TeamsScreen({ theme }: { theme: any }) {
           )}
         </Card.Content>
       </Card>
+
+      {/* MANAGE TEAM DIALOG */}
+      <Portal>
+      <Dialog
+        visible={showManageTeamDialog}
+        onDismiss={() => setShowManageTeamDialog(false)}
+      >
+      <Dialog.Title>Manage Team</Dialog.Title>
+        {/* Remember to add team name to Dialog.Title. Also, make sure to have the list of members being displayed for each team. */}
+        {/* Make sure to make each member generator a list button. Assign tasks on the members screen. */}
+      <Dialog.Content>
+      {memberNames && targetTeam && targetTeam.members && targetTeam.members.map((m) => {
+              return(
+                  <View
+                  key={m.uid}
+                  style={[
+                      styles.teamRow,
+                      { backgroundColor: "#e3f2fd" },
+                      ]}
+                  >
+                  <List.Item
+                  key={m.uid}
+                  title={memberNames[m.uid]} //memberNames[m.uid]
+                  description={m.role}
+                  />
+                  </View>
+                  )
+              }
+          )}
+
+      </Dialog.Content>
+      </Dialog>
+      </Portal>
 
       {/* CREATE TEAM DIALOG */}
       <Portal>

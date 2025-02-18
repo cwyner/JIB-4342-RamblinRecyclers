@@ -54,6 +54,10 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
     onClose()
   }
 
+  const handleClose = async () => {
+      onClose()
+     }
+
   return (
     <Modal
       visible={true}
