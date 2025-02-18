@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
 import CalendarAgenda from "@/components/ui/CalendarAgenda";
 import { useEvents } from "@/components/providers/EventsProvider";
+import ViewEventModal from "@/components/ui/ViewEventModal";
 
 function CalendarView() {
   const { agendaItems, loading } = useEvents();
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   if (loading) {
     return (
@@ -22,7 +24,21 @@ function CalendarView() {
     );
   }
 
-  return <CalendarAgenda onEventPress={(event) => console.log(event)} />;
+  return (
+    <>
+      <CalendarAgenda
+        onEventPress={(event) => {
+          setSelectedEvent(event);
+        }}
+      />
+      {selectedEvent && (
+        <ViewEventModal
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+        />
+      )}
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
