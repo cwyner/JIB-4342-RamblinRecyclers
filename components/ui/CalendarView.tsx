@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
-import CalendarAgenda from "@/components/ui/CalendarAgenda";
-import { useEvents } from "@/components/providers/EventsProvider";
-import ViewEventModal from "@/components/ui/ViewEventModal";
+import React, { useState } from "react"
+import { View, ActivityIndicator, Text, StyleSheet } from "react-native"
+import CalendarAgenda from "@/components/ui/CalendarAgenda"
+import { useEvents } from "@/components/providers/EventsProvider"
+import ViewEventModal from "@/components/ui/ViewEventModal"
 
 function CalendarView() {
-  const { agendaItems, loading } = useEvents();
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const { agendaItems, loading } = useEvents()
+  const [selectedEvent, setSelectedEvent] = useState(null)
 
   if (loading) {
     return (
       <View style={styles.spinnerContainer}>
         <ActivityIndicator size="large" color="#6200ee" />
       </View>
-    );
+    )
   }
 
   if (!loading && agendaItems.length === 0) {
@@ -21,14 +21,14 @@ function CalendarView() {
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>No events scheduled for today.</Text>
       </View>
-    );
+    )
   }
 
   return (
     <>
       <CalendarAgenda
         onEventPress={(event) => {
-          setSelectedEvent(event);
+          setSelectedEvent(event)
         }}
       />
       {selectedEvent && (
@@ -38,7 +38,7 @@ function CalendarView() {
         />
       )}
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -56,6 +56,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
   },
-});
+})
 
-export default CalendarView;
+export default CalendarView

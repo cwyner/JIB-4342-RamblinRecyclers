@@ -60,7 +60,9 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
       onDismiss={onClose}
       contentContainerStyle={styles.modalContainer}
     >
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <TextInput
           label="Title"
           value={title}
@@ -69,11 +71,19 @@ function ViewEventModal({ event, onClose }: ViewEventModalProps) {
           mode="outlined"
         />
 
-        <Button mode="outlined" onPress={() => setOpenDatePicker(true)} style={styles.input}>
+        <Button
+          mode="outlined"
+          onPress={() => setOpenDatePicker(true)}
+          style={styles.input}
+        >
           {date ? `Date: ${date}` : "Select Date"}
         </Button>
 
-        <Button mode="outlined" onPress={() => setOpenTimePicker(true)} style={styles.input}>
+        <Button
+          mode="outlined"
+          onPress={() => setOpenTimePicker(true)}
+          style={styles.input}
+        >
           {hour ? `Time: ${hour}` : "Select Time"}
         </Button>
 
