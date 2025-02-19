@@ -34,6 +34,15 @@ type Team = {
   members: { uid: string; role: string }[]
 }
 
+interface Event {
+  hour: string
+  duration: string
+  title: string
+  description?: string
+  date: string
+  teamName?: string
+}
+
 function TeamsScreen({ theme }: { theme: any }) {
   const { user, isLoading } = useSession()
   const db = getFirestore()
@@ -49,6 +58,15 @@ function TeamsScreen({ theme }: { theme: any }) {
 
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false)
   const [targetTeam, setTargetTeam] = useState<Team | null>(null)
+
+  const [showManageTeamDialog, setShowManageTeamDialog] = useState(false)
+  const [manageTeam, setManageTeam] = useState<Team | null>(null)
+  const [memberNames, setMemberNames] = useState(null)
+
+  const [showTasksDialog, setShowTasksDialog] = useState(false)
+  const [teamTasks, setTeamTasks] = useState(null)
+  const [currentlySelectedMember, setCurrentlySelectedMember] = useState(null)
+  const [currentlySelectedEvent, setCurrentlySelectedEvent] = useState(null)
 
   const [newMemberEmail, setNewMemberEmail] = useState("")
   const [newMemberRole, setNewMemberRole] = useState<"member" | "manager">(
@@ -120,6 +138,51 @@ function TeamsScreen({ theme }: { theme: any }) {
   const isOrgAdmin = (orgId: string): boolean => {
     const membership = userOrgs.find((o) => o.orgId === orgId)
     return membership?.role === "admin"
+  }
+  const getMemberNames = async (team): String[] => {
+      try {
+          const foundMemberNames = {}
+          await Promise.all(
+              team.members.map(async (m) => {
+                  const memberRef = doc(db, 'users', m.uid)
+                  const mDoc = await getDoc(memberRef)
+                  if (mDoc.exists()) {
+                      const mData = mDoc.data()
+                      foundMemberNames[m.uid] = mData.firstName + " " + mData.lastName
+                  }
+                  })
+              )
+          setMemberNames(foundMemberNames)
+      } catch (error) {
+          console.error(error)
+          return ""
+      }
+  }
+
+  const fetchEvents = async (team) => {
+      try {
+          const eventQuery = query(
+              collection(db, "events"),
+              where("team", "==", team.name) // Not sure why this isn't team.id in the firebase.
+              )
+          const snap = await getDocs(eventQuery)
+          if (snap.empty) {
+              return;
+              }
+
+          const events = snap.docs.map((docsSnap) => {
+              const data = docsSnap.data() as Event & { date?: string }
+              return {
+                  ...data,
+                  id: docsSnap.id,
+                  title: data.title ?? "Untitled",
+                  }
+              })
+          console.log(events.length)
+          setTeamTasks(events)
+          } catch (error) {
+          console.log(error)
+      }
   }
 
   const handleCreateTeam = async () => {
@@ -198,6 +261,32 @@ function TeamsScreen({ theme }: { theme: any }) {
     setShowAddMemberDialog(false)
   }
 
+  const handleManageTeam = async () => {
+      if (!targetTeam) {return;}
+      // Assign to the database
+  }
+
+  const handleApplyTask = async(member, task) => {
+        //if (!member | !task) {return;}
+        try {
+            // 1. Find the user
+            const memberRef = doc(db, 'users', member.uid)
+            const mDoc = await getDoc(memberRef)
+            if (!mDoc.exists()) {
+                console.error("No member with this id exists!")
+                return;
+            }
+            const mData = mDoc.data()
+
+            // 2. Add task to tasks item
+            await updateDoc(memberRef, {taskIDs: arrayUnion(task.title),})
+            // 3. save
+            console.log("Saved!")
+        } catch (error) {
+            console.error(error)
+        }
+      }
+
   if (isLoading) {
     return (
       <View
@@ -248,7 +337,12 @@ function TeamsScreen({ theme }: { theme: any }) {
                 <List.Item
                   title={team.name}
                   description={`Org: ${orgName}`}
-                  onPress={() => {}}
+                  onPress={() => {
+                      getMemberNames(team)
+                      fetchEvents(team)
+                      setTargetTeam(team)
+                      setShowManageTeamDialog(true)
+                  }}
                 />
                 {isOrgAdmin(team.orgId) && (
                   <IconButton
@@ -275,6 +369,76 @@ function TeamsScreen({ theme }: { theme: any }) {
           )}
         </Card.Content>
       </Card>
+
+      {/* MANAGE TEAM DIALOG */}
+      <Portal>
+      <Dialog
+        visible={showManageTeamDialog}
+        onDismiss={() => setShowManageTeamDialog(false)}
+      >
+      <Dialog.Title>Manage Team</Dialog.Title>
+        {/* Remember to add team name to Dialog.Title. Also, make sure to have the list of members being displayed for each team. */}
+        {/* Make sure to make each member generator a list button. Assign tasks on the members screen. */}
+      <Dialog.Content>
+      {memberNames && targetTeam && targetTeam.members && targetTeam.members.map((m) => {
+              return(
+                  <View
+                  key={m.uid}
+                  style={[
+                      styles.teamRow,
+                      { backgroundColor: "#e3f2fd" },
+                      ]}
+                  >
+                  <List.Item
+                  key={m.uid}
+                  title={memberNames[m.uid]}
+                  description={m.role}
+                  />
+                  {isOrgAdmin(targetTeam.orgId) && (
+                      <IconButton
+                      icon="account-multiple-plus"
+                      onPress={() => {
+                        //Assign tasks
+                        setCurrentlySelectedMember(m)
+                        setShowTasksDialog(true)
+                      }}
+                      />
+                  )}
+                  </View>
+                  )
+              }
+          )}
+
+      </Dialog.Content>
+      </Dialog>
+      </Portal>
+
+      {/* Show Tasks Dialog */}
+      <Portal>
+      <Dialog
+      visible={showTasksDialog}
+      onDismiss={() => setShowTasksDialog(false)}
+      >
+      <Dialog.Title>Assign Taks</Dialog.Title>
+      <Dialog.Content>
+      {teamTasks && teamTasks.map((task) => {
+          return(
+          <View
+          key={task.id}
+          >
+          <List.Item
+          title={task.title}
+          onPress={() => {
+              // Set member to have task
+              setCurrentlySelectedEvent(task)
+              handleApplyTask(currentlySelectedMember, task)
+              }}
+          />
+          </View>
+          )})}
+      </Dialog.Content>
+      </Dialog>
+      </Portal>
 
       {/* CREATE TEAM DIALOG */}
       <Portal>
