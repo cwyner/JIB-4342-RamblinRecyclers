@@ -27,7 +27,7 @@ interface Event {
   description?: string
   date: string
   teamName?: string
-  completed?: boolean // Add this field to support "cross off" functionality
+  completed?: boolean
 }
 
 interface AgendaItem {
