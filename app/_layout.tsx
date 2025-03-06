@@ -44,7 +44,7 @@ const firebaseConfig = {
   storageBucket: "ramblinrecyclersdemo.firebasestorage.app",
   messagingSenderId: "45339909847",
   appId: "1:45339909847:ios:73c25fc0576ad3acb0da92",
-}
+};
 
 initializeApp(firebaseConfig)
 
