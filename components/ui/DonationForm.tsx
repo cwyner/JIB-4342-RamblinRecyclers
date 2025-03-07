@@ -5,6 +5,7 @@ import { getApp } from 'firebase/app'
 
 const DonationForm: React.FC = () => {
   const [donorName, setDonorName] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
   const [itemDescription, setItemDescription] = useState<string>('')
   const [quantity, setQuantity] = useState<string>('')
   const [message, setMessage] = useState<string>('')
@@ -12,25 +13,23 @@ const DonationForm: React.FC = () => {
   const handleSubmit = async () => {
     const donationData = {
       donorName,
+      email,
       itemDescription,
       quantity,
       donationDate: new Date().toISOString(),
     }
 
     try {
-      // Get Firestore instance from initialized app
       const db = getFirestore(getApp())
 
-      // Add donation data to Firestore
       const docRef = await addDoc(collection(db, 'donations'), donationData)
 
-      // Successfully logged donation
       setMessage('Donation logged successfully!')
       setDonorName('')
+      setEmail('')
       setItemDescription('')
       setQuantity('')
     } catch (error) {
-      // Error in logging the donation
       setMessage('Error logging donation')
       console.error('Error adding document: ', error)
     }
@@ -42,6 +41,13 @@ const DonationForm: React.FC = () => {
         placeholder="Donor Name"
         value={donorName}
         onChangeText={setDonorName}
+        style={styles.input}
+      />
+       <TextInput
+        placeholder="Email Address"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
         style={styles.input}
       />
       <TextInput
