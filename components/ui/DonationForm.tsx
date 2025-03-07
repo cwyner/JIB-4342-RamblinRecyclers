@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native'
+import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native'
 import { getFirestore, collection, addDoc } from 'firebase/firestore'
 import { getApp } from 'firebase/app'
+import emailjs from 'emailjs-com'
 
 const DonationForm: React.FC = () => {
   const [donorName, setDonorName] = useState<string>('')
@@ -11,6 +12,11 @@ const DonationForm: React.FC = () => {
   const [message, setMessage] = useState<string>('')
 
   const handleSubmit = async () => {
+    if (!donorName || !email || !itemDescription || !quantity) {
+      Alert.alert('Please fill in all fields.')
+      return
+    }
+
     const donationData = {
       donorName,
       email,
@@ -21,8 +27,26 @@ const DonationForm: React.FC = () => {
 
     try {
       const db = getFirestore(getApp())
+      await addDoc(collection(db, 'donations'), donationData)
 
-      const docRef = await addDoc(collection(db, 'donations'), donationData)
+      // Send email using EmailJS
+      emailjs
+        .send(
+          'service_xgdp28h', // Replace with your EmailJS Service ID
+          'template_jaefims', // Replace with your EmailJS Template ID
+          {
+            donor_name: donorName,
+            email: email,
+            item: itemDescription,
+            quantity: quantity,
+            date: new Date().toLocaleDateString(),
+          },
+          'anOEpZU3l3StWWkoi' // Replace with your EmailJS Public Key
+        )
+        .then(() => {
+          Alert.alert('Donation recorded and receipt emailed!')
+        })
+        .catch((error) => console.error('Email sending error:', error))
 
       setMessage('Donation logged successfully!')
       setDonorName('')
@@ -43,7 +67,7 @@ const DonationForm: React.FC = () => {
         onChangeText={setDonorName}
         style={styles.input}
       />
-       <TextInput
+      <TextInput
         placeholder="Email Address"
         value={email}
         onChangeText={setEmail}
