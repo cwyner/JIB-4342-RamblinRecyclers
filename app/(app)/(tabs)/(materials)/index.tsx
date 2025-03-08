@@ -1,6 +1,6 @@
 import { withTheme } from "react-native-paper";
 import { View } from "react-native";
-import EditDonations from "@/components/ui/EditDonations"; // Ensure this path is correct
+import EditDonations from "@/components/ui/EditDonations";
 
 function Materials({ theme }: { theme: any }) {
   return (
@@ -10,4 +10,4 @@ function Materials({ theme }: { theme: any }) {
   );
 }
 
-export default withTheme(Materials);
+export default EditDonations;
