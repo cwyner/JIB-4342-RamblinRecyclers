@@ -1,3 +1,10 @@
 {
-  "urlRandomness": "esV9F-8"
+  "urlRandomness": "esV9F-8",
+  "dev": true,
+  "minify": false,
+  "https": false,
+  "scheme": "com.anonymous.artifactimpldemo",
+  "hostType": "lan",
+  "lanType": "ip",
+  "devClient": false
 }
