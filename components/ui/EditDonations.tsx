@@ -6,6 +6,9 @@ import { getApp } from 'firebase/app';
 const EditDonations: React.FC = () => {
   const [donations, setDonations] = useState<any[]>([]);
   const [selectedDonation, setSelectedDonation] = useState<any>(null);
+  const [itemName, setItemName] = useState<string>('');
+  const [donorName, setDonorName] = useState<string>('');
+  const [quantity, setQuantity] = useState<string>('');
   const [comment, setComment] = useState<string>('');
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -33,9 +36,17 @@ const EditDonations: React.FC = () => {
     const donationRef = doc(db, 'donations', selectedDonation.id);
 
     try {
-      await updateDoc(donationRef, { comment });
+      await updateDoc(donationRef, { 
+        itemDescription: itemName,
+        donorName,
+        quantity,
+        comment 
+      });
       alert('Donation updated successfully!');
       setSelectedDonation(null);
+      setItemName('');
+      setDonorName('');
+      setQuantity('');
       setComment('');
       setModalVisible(false);
       fetchDonations();
@@ -54,6 +65,9 @@ const EditDonations: React.FC = () => {
           <TouchableOpacity 
             onPress={() => {
               setSelectedDonation(item);
+              setItemName(item.itemDescription || '');
+              setDonorName(item.donorName || '');
+              setQuantity(item.quantity ? String(item.quantity) : '');
               setComment(item.comment || '');
               setModalVisible(true);
             }} 
@@ -76,7 +90,25 @@ const EditDonations: React.FC = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Donation</Text>
-            <Text>{selectedDonation?.itemDescription}</Text>
+            <TextInput
+              placeholder="Item Name"
+              value={itemName}
+              onChangeText={setItemName}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Donor Name"
+              value={donorName}
+              onChangeText={setDonorName}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Quantity"
+              value={quantity}
+              onChangeText={setQuantity}
+              keyboardType="numeric"
+              style={styles.input}
+            />
             <TextInput
               placeholder="Add/Edit Comment"
               value={comment}
