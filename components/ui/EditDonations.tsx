@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     flex: 1,
-    marginHorizontal: 100,
+    marginHorizontal: 5,
   },  
   container: {
     flex: 1,
