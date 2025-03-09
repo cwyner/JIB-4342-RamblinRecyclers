@@ -77,6 +77,7 @@ const DonationForm: React.FC = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.itemLabel}>Donor Name</Text>
         <TextInput
           placeholder="Donor Name"
           value={donorName}
@@ -84,6 +85,7 @@ const DonationForm: React.FC = () => {
           style={styles.input}
           mode="outlined"
         />
+        <Text style={styles.itemLabel}>Email Address</Text>
         <TextInput
           placeholder="Email Address"
           value={email}
