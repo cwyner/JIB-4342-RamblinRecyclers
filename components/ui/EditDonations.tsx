@@ -108,6 +108,7 @@ const EditDonations: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Edit Donations</Text>
+        <Text> Tap a donation to edit it:</Text>
       </View>
       <FlatList
         data={donations}
@@ -161,12 +162,14 @@ const EditDonations: React.FC = () => {
         <View style={styles.modalContainer}>
           <ScrollView contentContainerStyle={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Donation</Text>
+            <Text style={styles.itemLabel}>Donor Name</Text>
             <TextInput
               placeholder="Donor Name"
               value={donorName}
               onChangeText={setDonorName}
               style={styles.input}
             />
+            <Text style={styles.itemLabel}>Donor Email Address</Text>
             <TextInput
               placeholder="Email"
               value={email}
@@ -202,14 +205,22 @@ const EditDonations: React.FC = () => {
               </View>
             ))}
             <Button title="Add Item" onPress={handleAddEditItem} />
+            <Divider style={styles.itemDivider} />
+            <Text style={styles.itemLabel}>Add a comment (optional)</Text>
             <TextInput
               placeholder="Comment"
               value={comment}
               onChangeText={setComment}
               style={styles.input}
             />
-            <Button title="Save" onPress={handleEditDonation} />
-            <Button title="Cancel" onPress={resetModal} />
+            <View style={styles.buttonContainer}>
+              <View style={styles.buttonWrapper}>
+                <Button title="Save" onPress={handleEditDonation} />
+            </View>
+              <View style={styles.buttonWrapper}>
+                <Button title="Cancel" onPress={resetModal} />
+              </View>
+            </View>
           </ScrollView>
         </View>
       </Modal>
@@ -218,6 +229,15 @@ const EditDonations: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: 100,
+  },  
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
