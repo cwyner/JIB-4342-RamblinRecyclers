@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native'
+import { View, StyleSheet, Alert } from 'react-native'
+import { TextInput, Button, Text } from "react-native-paper"
 import { getFirestore, collection, addDoc } from 'firebase/firestore'
 import { getApp } from 'firebase/app'
 import emailjs from 'emailjs-com'
@@ -29,11 +30,10 @@ const DonationForm: React.FC = () => {
       const db = getFirestore(getApp())
       await addDoc(collection(db, 'donations'), donationData)
 
-      // Send email using EmailJS
       emailjs
         .send(
-          'service_xgdp28h', // Replace with your EmailJS Service ID
-          'template_jaefims', // Replace with your EmailJS Template ID
+          'service_xgdp28h',
+          'template_jaefims',
           {
             donor_name: donorName,
             email: email,
@@ -41,7 +41,6 @@ const DonationForm: React.FC = () => {
             quantity: quantity,
             date: new Date().toLocaleDateString(),
           },
-          'anOEpZU3l3StWWkoi' // Replace with your EmailJS Public Key
         )
         .then(() => {
           Alert.alert('Donation recorded and receipt emailed!')
@@ -66,6 +65,7 @@ const DonationForm: React.FC = () => {
         value={donorName}
         onChangeText={setDonorName}
         style={styles.input}
+        mode="outlined"
       />
       <TextInput
         placeholder="Email Address"
@@ -73,12 +73,16 @@ const DonationForm: React.FC = () => {
         onChangeText={setEmail}
         keyboardType="email-address"
         style={styles.input}
+        mode="outlined"
       />
       <TextInput
         placeholder="Item Description"
         value={itemDescription}
         onChangeText={setItemDescription}
         style={styles.input}
+        mode="outlined"
+        multiline
+        numberOfLines={5}
       />
       <TextInput
         placeholder="Quantity"
@@ -86,8 +90,11 @@ const DonationForm: React.FC = () => {
         onChangeText={setQuantity}
         keyboardType="numeric"
         style={styles.input}
+        mode="outlined"
       />
-      <Button title="Submit Donation" onPress={handleSubmit} />
+      <Button 
+        mode={"contained"}
+        onPress={handleSubmit}>Submit Donation</Button>
       {message && <Text>{message}</Text>}
     </View>
   )
@@ -96,13 +103,13 @@ const DonationForm: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    backgroundColor: "white",
+    margin: 20,
+    borderRadius: 10,
+    elevation: 5,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 8,
+    marginBottom: 15,
   },
 })
 
