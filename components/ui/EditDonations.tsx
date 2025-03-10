@@ -234,14 +234,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 10,
   },
-  buttonWrapper: {
-    flex: 1,
-    marginHorizontal: 5,
-  },  
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+  },  
   headerContainer: {
     paddingHorizontal: 20,
     paddingTop: 20,
