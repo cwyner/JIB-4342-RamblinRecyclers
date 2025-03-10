@@ -7,6 +7,25 @@ The Upcycle Build application aims to assist those who work in the reuse industr
 Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for the fast-paced environment they work in.
 
 # Release Notes
+## v0.3.0
+### Features
+- Material donations can be received into a centralized database
+- Ability to log multiple items in the same donation
+- App view of all logged donations
+- Ability to edit/comment on existing donations
+- Donors are emailed with a receipt of their donation
+- Continuous UI updates
+
+### Bug Fixes
+- Fixed bug where user could not scroll to see full materials list
+- Added headers to text input fields for user convenience
+
+### Known Issues
+- Email receipts are currently being sent from a dev's personal email; working on getting access to an official Upcycle Build address
+- Also working on formatting email receipts by PDF, giving them a more professional feel
+- Materials screen still needs some UI updates
+- Logout button in the top right of the screen on materials and receiving tab; should be hamburger menu here instead
+
 ## v0.2.0
 ### Features
 - Next and Previous Week buttons for calendar navigation
