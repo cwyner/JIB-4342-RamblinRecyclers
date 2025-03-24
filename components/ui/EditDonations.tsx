@@ -13,6 +13,7 @@ import {
 import { getFirestore, collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import { Divider, IconButton, Modal, TextInput, Button } from 'react-native-paper';
+import { MaterialStatusTag } from './MaterialStatusTag';
 
 interface Item {
   description: string;
@@ -130,6 +131,7 @@ const EditDonations: React.FC = () => {
             }} 
             style={styles.donationItem}
           >
+            <MaterialStatusTag name="Refurbishing" />
             {item.items && Array.isArray(item.items) ? (
               <>
                 {item.items.map((itm: Item, idx: number) => (
