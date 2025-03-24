@@ -18,6 +18,7 @@ import { MaterialStatusTag } from './MaterialStatusTag';
 interface Item {
   description: string;
   quantity: string;
+  status: "Received" | "Refurbishing" | "Refurbished"
 }
 
 const EditDonations: React.FC = () => {
@@ -27,6 +28,8 @@ const EditDonations: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [comment, setComment] = useState<string>('');
+  const [status, setStatus] = useState<string>('')
+  const [statusModalVisible, setStatusModalVisible] = useState(false)
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -76,6 +79,12 @@ const EditDonations: React.FC = () => {
     }
   };
 
+  const handleItemStatusChange = (index: number, newStatus: "Received" | "Refurbishing" | "Refurbished") => {
+    const updatedItems = [...editItems];
+    updatedItems[index] = { ...updatedItems[index], status: newStatus };
+    setEditItems(updatedItems);
+  };
+
   const resetModal = () => {
     setSelectedDonation(null);
     setDonorName('');
@@ -99,7 +108,7 @@ const EditDonations: React.FC = () => {
   };
 
   const handleAddEditItem = () => {
-    setEditItems([...editItems, { description: '', quantity: '' }]);
+    setEditItems([...editItems, { description: '', quantity: '', status: "Refurbishing" }]);
   };
 
   return (
@@ -124,24 +133,27 @@ const EditDonations: React.FC = () => {
               } else {
                 setEditItems([{ 
                   description: item.itemDescription || '', 
-                  quantity: item.quantity ? String(item.quantity) : '' 
+                  quantity: item.quantity ? String(item.quantity) : '',
+                  status: item.status ? item.status : "Refurbishing"
                 }]);
               }
               setModalVisible(true);
             }} 
             style={styles.donationItem}
           >
-            <MaterialStatusTag name="Refurbishing" />
             {item.items && Array.isArray(item.items) ? (
               <>
                 {item.items.map((itm: Item, idx: number) => (
-                  <Text key={idx}>Item {idx + 1}: {itm.description} - {itm.quantity}</Text>
+                  <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 3}}>
+                    <Text key={idx}>Item {idx + 1}: {itm.description} - {itm.quantity}</Text>
+                    <MaterialStatusTag name={itm.status || "Refurbishing"} />
+                  </View>
                 ))}
                 <Text style={styles.commentText}>Donor: {item.donorName || 'Unknown'}</Text>
               </>
             ) : (
               <>
-                <Text>{item.itemDescription} - {item.status}</Text>
+                <Text>{item.itemDescription}</Text>
                 <Text style={styles.commentText}>Donor: {item.donorName || 'Unknown'}</Text>
                 <Text style={styles.commentText}>Quantity: {item.quantity || 'Unknown'}</Text>
               </>
@@ -150,6 +162,14 @@ const EditDonations: React.FC = () => {
           </TouchableOpacity>
         )}
       />
+
+      <Modal
+        onDismiss={() => setStatus("")}
+        visible={statusModalVisible}
+        dismissable={true}
+      >
+        <Text>Modal</Text>
+      </Modal>
 
       <Modal
         onDismiss={resetModal}
@@ -206,6 +226,11 @@ const EditDonations: React.FC = () => {
                   keyboardType="numeric"
                   style={styles.input}
                   mode="outlined"
+                />
+                {/* Add the status tag with the onStatusChange callback */}
+                <MaterialStatusTag 
+                  name={item.status || "Refurbishing"} 
+                  onStatusChange={(newStatus) => handleItemStatusChange(index, newStatus)}
                 />
               </View>
             ))}

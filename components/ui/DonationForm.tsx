@@ -8,12 +8,13 @@ import emailjs from 'emailjs-com'
 interface Item {
   description: string
   quantity: string
+  status: "Received" | "Refurbishing" | "Refurbished"
 }
 
 const DonationForm: React.FC = () => {
   const [donorName, setDonorName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
-  const [items, setItems] = useState<Item[]>([{ description: '', quantity: '' }])
+  const [items, setItems] = useState<Item[]>([{ description: '', quantity: '', status: 'Refurbishing' }])
   const [message, setMessage] = useState<string>('')
 
   const handleItemChange = (index: number, key: keyof Item, value: string) => {
@@ -67,7 +68,7 @@ const DonationForm: React.FC = () => {
       setMessage('Donation logged successfully!')
       setDonorName('')
       setEmail('')
-      setItems([{ description: '', quantity: '' }])
+      setItems([{ description: '', quantity: '', status: 'Refurbishing' }])
     } catch (error) {
       setMessage('Error logging donation')
       console.error('Error adding document: ', error)
@@ -130,7 +131,7 @@ const DonationForm: React.FC = () => {
           icon="plus"
           mode="outlined"
           style={{ marginTop: 16 }}
-          onPress={() => setItems([...items, { description: '', quantity: '' }])}
+          onPress={() => setItems([...items, { description: '', quantity: '', status: 'Refurbishing' }])}
         >
           Add item
         </Button>
