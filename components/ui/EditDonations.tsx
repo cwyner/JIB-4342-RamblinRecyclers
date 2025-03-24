@@ -219,14 +219,34 @@ const EditDonations: React.FC = () => {
                   style={styles.input}
                   mode="outlined"
                 />
-                <TextInput
-                  placeholder="Quantity"
-                  value={item.quantity}
-                  onChangeText={(text) => handleEditItemChange(index, 'quantity', text)}
-                  keyboardType="numeric"
-                  style={styles.input}
-                  mode="outlined"
-                />
+                <View style={styles.quantityRow}>
+                  <IconButton
+                    icon="minus"
+                    size={20}
+                    onPress={() => {
+                      const newQty = Math.max(0, parseInt(item.quantity || '0') - 1)
+                      handleEditItemChange(index, 'quantity', newQty.toString())
+                    }}
+                  />
+                  <TextInput
+                    value={item.quantity}
+                    onChangeText={(text) => {
+                      const parsed = text.replace(/[^0-9]/g, '')
+                      handleEditItemChange(index, 'quantity', parsed)
+                    }}
+                    keyboardType="numeric"
+                    mode="outlined"
+                    style={styles.quantityInput}
+                  />
+                  <IconButton
+                    icon="plus"
+                    size={20}
+                    onPress={() => {
+                      const newQty = parseInt(item.quantity || '0') + 1
+                      handleEditItemChange(index, 'quantity', newQty.toString())
+                    }}
+                  />
+                </View>
                 {/* Add the status tag with the onStatusChange callback */}
                 <MaterialStatusTag 
                   name={item.status || "Refurbishing"} 
@@ -337,6 +357,16 @@ const styles = StyleSheet.create({
   buttonWrapper: {
     flex: 1,
     marginHorizontal: 5,
+  },
+  quantityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  quantityInput: {
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 8,
   },
 });
 
