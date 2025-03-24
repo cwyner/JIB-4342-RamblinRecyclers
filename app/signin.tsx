@@ -8,11 +8,12 @@ import {
   Checkbox,
 } from "react-native-paper"
 import { Link } from "expo-router"
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, TouchableOpacity } from "react-native"
 import { useSession } from "@/components/providers/SessionProvider"
 import { useState } from "react"
 import { useRouter } from "expo-router"
 import * as SecureStore from "expo-secure-store"
+import { MaterialIcons } from "@expo/vector-icons"
 
 function LogIn() {
   const { signIn } = useSession()
@@ -66,11 +67,17 @@ function LogIn() {
           </Link>
         </Text>
         <View style={styles.rememberMeContainer}>
-          <Checkbox
-            status={rememberMe ? "checked" : "unchecked"}
+          <TouchableOpacity
             onPress={() => setRememberMe(!rememberMe)}
-          />
-          <Text style={styles.rememberMeText}>Remember Me</Text>
+            style={styles.rememberMeContainer}
+          >
+            <MaterialIcons
+              name={rememberMe ? "check-box" : "check-box-outline-blank"}
+              size={24}
+              color="#6200ee"
+            />
+            <Text style={styles.rememberMeText}>Remember Me</Text>
+          </TouchableOpacity>
         </View>
         {localError && <Text style={styles.errorText}>{localError}</Text>}
         <Card.Actions>
@@ -106,10 +113,11 @@ const styles = StyleSheet.create({
   rememberMeContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 4,
+    marginLeft: 7,
   },
   rememberMeText: {
-    marginLeft: 8,
+    marginLeft: 4,
     fontSize: 14,
   },
   errorText: {
