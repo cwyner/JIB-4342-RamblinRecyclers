@@ -3,17 +3,16 @@ import {
   View, 
   Text, 
   FlatList, 
-  TextInput, 
-  Button, 
   StyleSheet, 
   TouchableOpacity, 
-  Modal, 
   SafeAreaView, 
-  ScrollView 
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { getFirestore, collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
-import { Divider, IconButton } from 'react-native-paper';
+import { Divider, IconButton, Modal, TextInput, Button } from 'react-native-paper';
 
 interface Item {
   description: string;
@@ -54,7 +53,6 @@ const EditDonations: React.FC = () => {
 
     try {
       if (selectedDonation.items) {
-        // New donation form: update donorName, email, items, and comment.
         await updateDoc(donationRef, { 
           donorName,
           email,
@@ -62,7 +60,6 @@ const EditDonations: React.FC = () => {
           comment
         });
       } else {
-        // Legacy donation form: update donorName, comment, and update single item fields.
         await updateDoc(donationRef, { 
           donorName,
           itemDescription: editItems[0]?.description || '',
@@ -108,7 +105,7 @@ const EditDonations: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Edit Donations</Text>
-        <Text> Tap a donation to edit it:</Text>
+        <Text>Tap a donation to edit it:</Text>
       </View>
       <FlatList
         data={donations}
@@ -124,7 +121,6 @@ const EditDonations: React.FC = () => {
               if (item.items && Array.isArray(item.items)) {
                 setEditItems(item.items);
               } else {
-                // Legacy donation: convert to one-item array.
                 setEditItems([{ 
                   description: item.itemDescription || '', 
                   quantity: item.quantity ? String(item.quantity) : '' 
@@ -154,27 +150,32 @@ const EditDonations: React.FC = () => {
       />
 
       <Modal
-        animationType="slide"
-        transparent={true}
+        onDismiss={resetModal}
+        contentContainerStyle={styles.modalContentWrapper}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        dismissable={true}
       >
-        <View style={styles.modalContainer}>
-          <ScrollView contentContainerStyle={styles.modalContent}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ width: '100%' }} // Changed from flex: 1 to width: '100%'
+        >
+          <ScrollView 
+            keyboardShouldPersistTaps="handled"
+          >
             <Text style={styles.modalTitle}>Edit Donation</Text>
-            <Text style={styles.itemLabel}>Donor Name</Text>
             <TextInput
               placeholder="Donor Name"
               value={donorName}
               onChangeText={setDonorName}
               style={styles.input}
+              mode="outlined"
             />
-            <Text style={styles.itemLabel}>Donor Email Address</Text>
             <TextInput
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
               style={styles.input}
+              mode="outlined"
             />
             {editItems.map((item, index) => (
               <View key={index} style={styles.itemContainer}>
@@ -194,6 +195,7 @@ const EditDonations: React.FC = () => {
                   value={item.description}
                   onChangeText={(text) => handleEditItemChange(index, 'description', text)}
                   style={styles.input}
+                  mode="outlined"
                 />
                 <TextInput
                   placeholder="Quantity"
@@ -201,47 +203,42 @@ const EditDonations: React.FC = () => {
                   onChangeText={(text) => handleEditItemChange(index, 'quantity', text)}
                   keyboardType="numeric"
                   style={styles.input}
+                  mode="outlined"
                 />
               </View>
             ))}
-            <Button title="Add Item" onPress={handleAddEditItem} />
+            <Button icon="plus" onPress={handleAddEditItem}>Add Item</Button>
             <Divider style={styles.itemDivider} />
             <Text style={styles.itemLabel}>Add a comment (optional)</Text>
             <TextInput
               placeholder="Comment"
               value={comment}
               onChangeText={setComment}
+              multiline
+              numberOfLines={4}
+              mode="outlined"
               style={styles.input}
             />
             <View style={styles.buttonContainer}>
               <View style={styles.buttonWrapper}>
-                <Button title="Save" onPress={handleEditDonation} />
-            </View>
+                <Button mode="contained" onPress={handleEditDonation}>Save</Button>
+              </View>
               <View style={styles.buttonWrapper}>
-                <Button title="Cancel" onPress={resetModal} />
+                <Button mode="outlined" onPress={resetModal}>Cancel</Button>
               </View>
             </View>
           </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  buttonWrapper: {
-    flex: 1,
-    marginHorizontal: 5,
-  },  
   headerContainer: {
     paddingHorizontal: 20,
     paddingTop: 20,
@@ -268,16 +265,12 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: '#555',
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    padding: 20,
-    backgroundColor: 'white',
+  modalContentWrapper: {
     marginHorizontal: 20,
+    marginVertical: 50,
+    backgroundColor: 'white',
     borderRadius: 10,
+    padding: 20,
   },
   modalTitle: {
     fontSize: 20,
@@ -291,7 +284,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 8,
-    height: 40,
     borderRadius: 5,
   },
   itemContainer: {
@@ -309,7 +301,16 @@ const styles = StyleSheet.create({
   },
   itemDivider: {
     marginBottom: 10,
-  }
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
 });
 
 export default EditDonations;
