@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { 
   View, 
-  Text, 
-  FlatList, 
   StyleSheet, 
-  TouchableOpacity, 
   SafeAreaView, 
+  FlatList, 
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform 
 } from 'react-native';
+import { 
+  Card, 
+  Title, 
+  Text, 
+  TextInput, 
+  Button, 
+  IconButton, 
+  Divider, 
+  Modal,
+  Portal 
+} from 'react-native-paper';
 import { getFirestore, collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
-import { Divider, IconButton, Modal, TextInput, Button } from 'react-native-paper';
 import { MaterialStatusTag } from './MaterialStatusTag';
 
 interface Item {
   description: string;
   quantity: string;
-  status: "Received" | "Refurbishing" | "Refurbished"
+  status: "Received" | "Refurbishing" | "Refurbished";
 }
 
 const EditDonations: React.FC = () => {
@@ -28,8 +36,7 @@ const EditDonations: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [comment, setComment] = useState<string>('');
-  const [status, setStatus] = useState<string>('')
-  const [statusModalVisible, setStatusModalVisible] = useState(false)
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -39,7 +46,6 @@ const EditDonations: React.FC = () => {
   const fetchDonations = async () => {
     const db = getFirestore(getApp());
     const donationsRef = collection(db, 'donations');
-    
     try {
       const querySnapshot = await getDocs(donationsRef);
       const donationList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -51,10 +57,8 @@ const EditDonations: React.FC = () => {
 
   const handleEditDonation = async () => {
     if (!selectedDonation) return;
-    
     const db = getFirestore(getApp());
     const donationRef = doc(db, 'donations', selectedDonation.id);
-
     try {
       if (selectedDonation.items) {
         await updateDoc(donationRef, { 
@@ -111,172 +115,181 @@ const EditDonations: React.FC = () => {
     setEditItems([...editItems, { description: '', quantity: '', status: "Refurbishing" }]);
   };
 
+  const openDonationModal = (item: any) => {
+    setSelectedDonation(item);
+    setDonorName(item.donorName || '');
+    setEmail(item.email || '');
+    setComment(item.comment || '');
+    if (item.items && Array.isArray(item.items)) {
+      setEditItems(item.items);
+    } else {
+      setEditItems([{ 
+        description: item.itemDescription || '', 
+        quantity: item.quantity ? String(item.quantity) : '',
+        status: item.status || "Refurbishing"
+      }]);
+    }
+    setModalVisible(true);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Edit Donations</Text>
-        <Text>Tap a donation to edit it:</Text>
+        <Title style={styles.title}>Edit Donations</Title>
+        <Text style={styles.subtitle}>Tap a donation to edit it</Text>
       </View>
       <FlatList
         data={donations}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.flatListContainer}
+        contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
-          <TouchableOpacity 
-            onPress={() => {
-              setSelectedDonation(item);
-              setDonorName(item.donorName || '');
-              setEmail(item.email || '');
-              setComment(item.comment || '');
-              if (item.items && Array.isArray(item.items)) {
-                setEditItems(item.items);
-              } else {
-                setEditItems([{ 
-                  description: item.itemDescription || '', 
-                  quantity: item.quantity ? String(item.quantity) : '',
-                  status: item.status ? item.status : "Refurbishing"
-                }]);
-              }
-              setModalVisible(true);
-            }} 
-            style={styles.donationItem}
-          >
-            {item.items && Array.isArray(item.items) ? (
-              <>
-                {item.items.map((itm: Item, idx: number) => (
-                  <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 3}}>
-                    <Text key={idx}>Item {idx + 1}: {itm.description} - {itm.quantity}</Text>
+          <Card style={styles.card} onPress={() => openDonationModal(item)}>
+            <Card.Content>
+              {item.items && Array.isArray(item.items) ? (
+                item.items.map((itm: Item, idx: number) => (
+                  <View key={idx} style={styles.itemRow}>
+                    <Text style={styles.itemText}>
+                      {idx + 1}. {itm.description} - {itm.quantity}
+                    </Text>
                     <MaterialStatusTag name={itm.status || "Refurbishing"} />
                   </View>
-                ))}
-                <Text style={styles.commentText}>Donor: {item.donorName || 'Unknown'}</Text>
-              </>
-            ) : (
-              <>
-                <Text>{item.itemDescription}</Text>
-                <Text style={styles.commentText}>Donor: {item.donorName || 'Unknown'}</Text>
-                <Text style={styles.commentText}>Quantity: {item.quantity || 'Unknown'}</Text>
-              </>
-            )}
-            <Text style={styles.commentText}>Comment: {item.comment || 'No comments'}</Text>
-          </TouchableOpacity>
+                ))
+              ) : (
+                <>
+                  <View style={styles.itemRow}>
+                    <Text style={styles.itemText}>{item.itemDescription}</Text>
+                    <MaterialStatusTag name={item.status || "Refurbishing"} />
+                  </View>
+                  <Text style={styles.subText}>Quantity: {item.quantity || 'Unknown'}</Text>
+                </>
+              )}
+              <Divider style={styles.divider} />
+              <Text style={styles.subText}>Donor: {item.donorName || 'Unknown'}</Text>
+              <Text style={styles.subText}>Comment: {item.comment || 'No comments'}</Text>
+            </Card.Content>
+          </Card>
         )}
       />
 
-      <Modal
-        onDismiss={() => setStatus("")}
-        visible={statusModalVisible}
-        dismissable={true}
-      >
-        <Text>Modal</Text>
-      </Modal>
-
-      <Modal
-        onDismiss={resetModal}
-        contentContainerStyle={styles.modalContentWrapper}
-        visible={modalVisible}
-        dismissable={true}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ width: '100%' }} // Changed from flex: 1 to width: '100%'
+      <Portal>
+        <Modal 
+          visible={modalVisible} 
+          onDismiss={resetModal}
+          contentContainerStyle={styles.modalContentWrapper}
         >
-          <ScrollView 
-            keyboardShouldPersistTaps="handled"
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ width: '100%' }}
           >
-            <Text style={styles.modalTitle}>Edit Donation</Text>
-            <TextInput
-              placeholder="Donor Name"
-              value={donorName}
-              onChangeText={setDonorName}
-              style={styles.input}
-              mode="outlined"
-            />
-            <TextInput
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-              mode="outlined"
-            />
-            {editItems.map((item, index) => (
-              <View key={index} style={styles.itemContainer}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemLabel}>Item {index + 1}</Text>
-                  {editItems.length > 1 && (
-                    <IconButton 
-                      icon="delete"
-                      size={20}
-                      onPress={() => handleRemoveEditItem(index)}
-                    />
-                  )}
-                </View>
-                <Divider style={styles.itemDivider} />
-                <TextInput
-                  placeholder="Item Description"
-                  value={item.description}
-                  onChangeText={(text) => handleEditItemChange(index, 'description', text)}
-                  style={styles.input}
-                  mode="outlined"
-                />
-                <View style={styles.quantityRow}>
-                  <IconButton
-                    icon="minus"
-                    size={20}
-                    onPress={() => {
-                      const newQty = Math.max(0, parseInt(item.quantity || '0') - 1)
-                      handleEditItemChange(index, 'quantity', newQty.toString())
-                    }}
-                  />
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <Title style={styles.modalTitle}>Edit Donation</Title>
+              <TextInput
+                placeholder="Donor Name"
+                value={donorName}
+                onChangeText={setDonorName}
+                mode="outlined"
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                mode="outlined"
+                style={styles.input}
+              />
+              {editItems.map((item, index) => (
+                <View key={index} style={styles.itemContainer}>
+                  <View style={styles.itemHeader}>
+                    <Text style={styles.itemLabel}>Item {index + 1}</Text>
+                    {editItems.length > 1 && (
+                      <IconButton 
+                        icon="delete" 
+                        size={20} 
+                        onPress={() => handleRemoveEditItem(index)} 
+                      />
+                    )}
+                  </View>
+                  <Divider style={styles.divider} />
                   <TextInput
-                    value={item.quantity}
-                    onChangeText={(text) => {
-                      const parsed = text.replace(/[^0-9]/g, '')
-                      handleEditItemChange(index, 'quantity', parsed)
-                    }}
-                    keyboardType="numeric"
+                    placeholder="Item Description"
+                    value={item.description}
+                    onChangeText={(text) => handleEditItemChange(index, 'description', text)}
                     mode="outlined"
-                    style={styles.quantityInput}
+                    style={styles.input}
                   />
-                  <IconButton
-                    icon="plus"
-                    size={20}
-                    onPress={() => {
-                      const newQty = parseInt(item.quantity || '0') + 1
-                      handleEditItemChange(index, 'quantity', newQty.toString())
-                    }}
+                  <View style={styles.quantityRow}>
+                    <IconButton
+                      icon="minus"
+                      size={20}
+                      onPress={() => {
+                        const newQty = Math.max(0, parseInt(item.quantity || '0') - 1);
+                        handleEditItemChange(index, 'quantity', newQty.toString());
+                      }}
+                    />
+                    <TextInput
+                      value={item.quantity}
+                      onChangeText={(text) => {
+                        const parsed = text.replace(/[^0-9]/g, '');
+                        handleEditItemChange(index, 'quantity', parsed);
+                      }}
+                      keyboardType="numeric"
+                      mode="outlined"
+                      style={styles.quantityInput}
+                    />
+                    <IconButton
+                      icon="plus"
+                      size={20}
+                      onPress={() => {
+                        const newQty = parseInt(item.quantity || '0') + 1;
+                        handleEditItemChange(index, 'quantity', newQty.toString());
+                      }}
+                    />
+                  </View>
+                  <MaterialStatusTag 
+                    name={item.status || "Refurbishing"} 
+                    onStatusChange={(newStatus) => handleItemStatusChange(index, newStatus)}
                   />
                 </View>
-                {/* Add the status tag with the onStatusChange callback */}
-                <MaterialStatusTag 
-                  name={item.status || "Refurbishing"} 
-                  onStatusChange={(newStatus) => handleItemStatusChange(index, newStatus)}
-                />
+              ))}
+              <Button 
+                icon="plus" 
+                mode="outlined" 
+                onPress={handleAddEditItem}
+                style={styles.addButton}
+              >
+                Add Item
+              </Button>
+              <Divider style={styles.divider} />
+              <Text style={styles.itemLabel}>Add a comment (optional)</Text>
+              <TextInput
+                placeholder="Comment"
+                value={comment}
+                onChangeText={setComment}
+                multiline
+                numberOfLines={4}
+                mode="outlined"
+                style={styles.input}
+              />
+              <View style={styles.buttonContainer}>
+                <Button 
+                  mode="contained" 
+                  onPress={handleEditDonation} 
+                  style={styles.buttonWrapper}
+                >
+                  Save
+                </Button>
+                <Button 
+                  mode="outlined" 
+                  onPress={resetModal} 
+                  style={styles.buttonWrapper}
+                >
+                  Cancel
+                </Button>
               </View>
-            ))}
-            <Button icon="plus" onPress={handleAddEditItem}>Add Item</Button>
-            <Divider style={styles.itemDivider} />
-            <Text style={styles.itemLabel}>Add a comment (optional)</Text>
-            <TextInput
-              placeholder="Comment"
-              value={comment}
-              onChangeText={setComment}
-              multiline
-              numberOfLines={4}
-              mode="outlined"
-              style={styles.input}
-            />
-            <View style={styles.buttonContainer}>
-              <View style={styles.buttonWrapper}>
-                <Button mode="contained" onPress={handleEditDonation}>Save</Button>
-              </View>
-              <View style={styles.buttonWrapper}>
-                <Button mode="outlined" onPress={resetModal}>Cancel</Button>
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </Modal>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </Modal>
+      </Portal>
     </SafeAreaView>
   );
 };
@@ -284,54 +297,65 @@ const EditDonations: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#EFEFEF',
   },
   headerContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  flatListContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  donationItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  commentText: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: '#555',
-  },
-  modalContentWrapper: {
-    marginHorizontal: 20,
-    marginVertical: 50,
-    backgroundColor: 'white',
-    borderRadius: 10,
     padding: 20,
   },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  listContainer: {
+    paddingBottom: 20,
+  },
+  card: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: '#fff',
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  itemText: {
+    fontSize: 16,
+    color: '#444',
+  },
+  subText: {
+    fontSize: 14,
+    color: '#777',
+    marginTop: 2,
+  },
+  divider: {
+    marginVertical: 10,
+  },
+  modalContentWrapper: {
+    margin: 20,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 5,
+  },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    alignSelf: 'center',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontSize: 24,
+    fontWeight: '700',
   },
   input: {
-    width: '100%',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 8,
-    borderRadius: 5,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   },
   itemContainer: {
     marginBottom: 20,
@@ -340,23 +364,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 10,
   },
   itemLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  itemDivider: {
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  buttonWrapper: {
-    flex: 1,
-    marginHorizontal: 5,
+    fontWeight: '600',
   },
   quantityRow: {
     flexDirection: 'row',
@@ -367,6 +379,18 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginHorizontal: 8,
+  },
+  addButton: {
+    marginBottom: 15,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: 10,
   },
 });
 
