@@ -3,7 +3,10 @@ import { SafeAreaView, ScrollView, StyleSheet, Alert, View } from 'react-native'
 import { TextInput, Button, Text, Divider, IconButton } from "react-native-paper"
 import { getFirestore, collection, addDoc } from 'firebase/firestore'
 import { getApp } from 'firebase/app'
+import { SegmentedButtons } from "react-native-paper"
 import emailjs from 'emailjs-com'
+import { TimePickerModal, DatePickerModal } from "react-native-paper-dates"
+
 
 interface Item {
   description: string
@@ -11,11 +14,35 @@ interface Item {
   status: "Received" | "Refurbishing" | "Refurbished"
 }
 
+const formatTime = (hours: number, minutes: number) => {
+  const period = hours >= 12 ? "PM" : "AM"
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12
+  return `${hour12}:${minutes < 10 ? "0" : ""}${minutes} ${period}`
+}
+
+const formatDate = (date: Date) => {
+  const year = date.getFullYear()
+  const month = (date.getMonth() + 1).toString().padStart(2, "0")
+  const day = date.getDate().toString().padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
 const DonationForm: React.FC = () => {
   const [donorName, setDonorName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
+  const [address, setAddress] = useState<string>("")
+  const [city, setCity] = useState<string>("")
+  const [state, setState] = useState<string>("Georgia")
+  const [zipcode, setZipcode] = useState<string>("")
+  const [method, setMethod] = useState<string>("")
   const [items, setItems] = useState<Item[]>([{ description: '', quantity: '', status: 'Refurbishing' }])
   const [message, setMessage] = useState<string>('')
+  const [openTimePicker, setOpenTimePicker] = useState(false)
+  const [openDatePicker, setOpenDatePicker] = useState(false)
+  const [date, setDate] = useState("")
+  const [hour, setHour] = useState("")
+
+  
 
   const handleItemChange = (index: number, key: keyof Item, value: string) => {
     const updatedItems = [...items]
@@ -40,6 +67,13 @@ const DonationForm: React.FC = () => {
       donorName,
       email,
       items,
+      address,
+      city,
+      state,
+      zipcode,
+      method,
+      date,
+      hour,
       donationDate: new Date().toISOString(),
     }
 
@@ -77,8 +111,25 @@ const DonationForm: React.FC = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <SegmentedButtons
+          value={method}
+          onValueChange={setMethod}
+          buttons={[
+            {
+              value: '📦 Drop Off',
+              label: '📦 Drop Off',
+            },
+            {
+              value: '🚚 Pick Up',
+              label: '🚚 Pick Up',
+            },
+            { 
+              value: '🗓️ Event',
+              label: '🗓️ Event'
+            },
+          ]}
+        />
       <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.itemLabel}>Donor Name</Text>
         <TextInput
           placeholder="Donor Name"
           value={donorName}
@@ -86,7 +137,6 @@ const DonationForm: React.FC = () => {
           style={styles.input}
           mode="outlined"
         />
-        <Text style={styles.itemLabel}>Email Address</Text>
         <TextInput
           placeholder="Email Address"
           value={email}
@@ -95,6 +145,82 @@ const DonationForm: React.FC = () => {
           style={styles.input}
           mode="outlined"
         />
+        <TextInput
+          placeholder="Address"
+          value={address}
+          onChangeText={setAddress}
+          keyboardType="default"
+          style={styles.input}
+          mode="outlined"
+        />
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <TextInput
+            placeholder="City"
+            value={city}
+            onChangeText={setCity}
+            keyboardType="default"
+            style={{ marginBottom: 15 }}
+            mode="outlined"
+          />
+          <TextInput
+            placeholder="State"
+            value={state}
+            onChangeText={setState}
+            keyboardType="default"
+            style={{ marginHorizontal: 6, marginBottom: 15 }}
+            mode="outlined"
+          />
+          <TextInput
+            placeholder="Zip Code"
+            value={zipcode}
+            onChangeText={setZipcode}
+            keyboardType="default"
+            style={styles.input}
+            mode="outlined"
+          />
+        </View>
+
+        <Button
+          mode="outlined"
+          onPress={() => setOpenDatePicker(true)}
+          style={styles.input}
+        >
+          {date ? `Date: ${date}` : "Select Date"}
+        </Button>
+
+        <Button
+          mode="outlined"
+          onPress={() => setOpenTimePicker(true)}
+          style={styles.input}
+        >
+          {hour ? `Time: ${hour}` : "Select Time"}
+        </Button>
+
+        <TimePickerModal
+          visible={openTimePicker}
+          onDismiss={() => setOpenTimePicker(false)}
+          onConfirm={({ hours, minutes }) => {
+            setHour(formatTime(hours, minutes))
+            setOpenTimePicker(false)
+          }}
+          hours={0}
+          minutes={0}
+          label="Select time"
+          uppercase={false}
+        />
+
+        <DatePickerModal
+          locale="en"
+          mode="single"
+          visible={openDatePicker}
+          onDismiss={() => setOpenDatePicker(false)}
+          date={date ? new Date(date) : new Date()}
+          onConfirm={({ date: selectedDate }) => {
+            setDate(formatDate(selectedDate))
+            setOpenDatePicker(false)
+          }}
+        />
+        
         {items.map((item, index) => (
           <View key={index} style={styles.itemContainer}>
             <View style={styles.itemHeader}>

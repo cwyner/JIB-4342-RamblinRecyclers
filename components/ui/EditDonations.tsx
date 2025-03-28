@@ -36,6 +36,16 @@ const EditDonations: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [comment, setComment] = useState<string>('');
+
+  // New fields state
+  const [address, setAddress] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [donationState, setDonationState] = useState<string>('Georgia');
+  const [zipcode, setZipcode] = useState<string>('');
+  const [method, setMethod] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -59,22 +69,46 @@ const EditDonations: React.FC = () => {
     if (!selectedDonation) return;
     const db = getFirestore(getApp());
     const donationRef = doc(db, 'donations', selectedDonation.id);
+
+    const updatedData: any = {
+      donorName,
+      email,
+      comment,
+    };
+
+    if (selectedDonation.items) {
+      updatedData.items = editItems;
+    } else {
+      updatedData.itemDescription = editItems[0]?.description || '';
+      updatedData.quantity = editItems[0]?.quantity || '';
+      updatedData.status = editItems[0]?.status || 'Refurbishing';
+    }
+
+    // Only update new fields if they exist on the original donation
+    if (selectedDonation.address !== undefined) {
+      updatedData.address = address;
+    }
+    if (selectedDonation.city !== undefined) {
+      updatedData.city = city;
+    }
+    if (selectedDonation.state !== undefined) {
+      updatedData.state = donationState;
+    }
+    if (selectedDonation.zipcode !== undefined) {
+      updatedData.zipcode = zipcode;
+    }
+    if (selectedDonation.method !== undefined) {
+      updatedData.method = method;
+    }
+    if (selectedDonation.selectedDate !== undefined) {
+      updatedData.selectedDate = selectedDate;
+    }
+    if (selectedDonation.selectedTime !== undefined) {
+      updatedData.selectedTime = selectedTime;
+    }
+
     try {
-      if (selectedDonation.items) {
-        await updateDoc(donationRef, { 
-          donorName,
-          email,
-          items: editItems,
-          comment
-        });
-      } else {
-        await updateDoc(donationRef, { 
-          donorName,
-          itemDescription: editItems[0]?.description || '',
-          quantity: editItems[0]?.quantity || '',
-          comment
-        });
-      }
+      await updateDoc(donationRef, updatedData);
       alert('Donation updated successfully!');
       resetModal();
       fetchDonations();
@@ -95,6 +129,13 @@ const EditDonations: React.FC = () => {
     setEmail('');
     setEditItems([]);
     setComment('');
+    setAddress('');
+    setCity('');
+    setDonationState('Georgia');
+    setZipcode('');
+    setMethod('');
+    setSelectedDate('');
+    setSelectedTime('');
     setModalVisible(false);
   };
 
@@ -120,6 +161,16 @@ const EditDonations: React.FC = () => {
     setDonorName(item.donorName || '');
     setEmail(item.email || '');
     setComment(item.comment || '');
+
+    // Set new fields if they exist on the donation
+    setAddress(item.address || '');
+    setCity(item.city || '');
+    setDonationState(item.state || 'Georgia');
+    setZipcode(item.zipcode || '');
+    setMethod(item.method || '');
+    setSelectedDate(item.selectedDate || '');
+    setSelectedTime(item.selectedTime || '');
+
     if (item.items && Array.isArray(item.items)) {
       setEditItems(item.items);
     } else {
@@ -166,6 +217,15 @@ const EditDonations: React.FC = () => {
               <Divider style={styles.divider} />
               <Text style={styles.subText}>Donor: {item.donorName || 'Unknown'}</Text>
               <Text style={styles.subText}>Comment: {item.comment || 'No comments'}</Text>
+              {/* Optionally display new fields if available */}
+              {item.address && <Text style={styles.subText}>Address: {item.address}</Text>}
+              {item.city && <Text style={styles.subText}>City: {item.city}</Text>}
+              {item.state && <Text style={styles.subText}>State: {item.state}</Text>}
+              {item.zipcode && <Text style={styles.subText}>Zipcode: {item.zipcode}</Text>}
+              {item.selectedDate && <Text style={styles.subText}>Date: {item.selectedDate}</Text>}
+              {item.selectedTime && <Text style={styles.subText}>Time: {item.selectedTime}</Text>}
+              {item.method && <Text style={{ marginTop: 10 }}>{item.method}</Text>}
+
             </Card.Content>
           </Card>
         )}
@@ -197,6 +257,60 @@ const EditDonations: React.FC = () => {
                 mode="outlined"
                 style={styles.input}
               />
+              {selectedDonation?.address !== undefined && (
+                <TextInput
+                  placeholder="Address"
+                  value={address}
+                  onChangeText={setAddress}
+                  mode="outlined"
+                  style={styles.input}
+                />
+              )}
+              {selectedDonation?.city !== undefined && (
+                <TextInput
+                  placeholder="City"
+                  value={city}
+                  onChangeText={setCity}
+                  mode="outlined"
+                  style={styles.input}
+                />
+              )}
+              {selectedDonation?.state !== undefined && (
+                <TextInput
+                  placeholder="State"
+                  value={donationState}
+                  onChangeText={setDonationState}
+                  mode="outlined"
+                  style={styles.input}
+                />
+              )}
+              {selectedDonation?.zipcode !== undefined && (
+                <TextInput
+                  placeholder="Zip Code"
+                  value={zipcode}
+                  onChangeText={setZipcode}
+                  mode="outlined"
+                  style={styles.input}
+                />
+              )}
+              {selectedDonation?.selectedDate !== undefined && (
+                <TextInput
+                  placeholder="Selected Date"
+                  value={selectedDate}
+                  onChangeText={setSelectedDate}
+                  mode="outlined"
+                  style={styles.input}
+                />
+              )}
+              {selectedDonation?.selectedTime !== undefined && (
+                <TextInput
+                  placeholder="Selected Time"
+                  value={selectedTime}
+                  onChangeText={setSelectedTime}
+                  mode="outlined"
+                  style={styles.input}
+                />
+              )}
               {editItems.map((item, index) => (
                 <View key={index} style={styles.itemContainer}>
                   <View style={styles.itemHeader}>
