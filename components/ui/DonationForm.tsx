@@ -243,6 +243,8 @@ const DonationForm: React.FC = () => {
               multiline
               numberOfLines={3}
             />
+            <Text style={styles.itemLabel}>Quantity</Text>
+            <View style={{ height: 10 }} />
             <View style={styles.quantityRow}>
               <IconButton
                 icon="minus"
