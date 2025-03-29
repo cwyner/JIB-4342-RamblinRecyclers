@@ -45,6 +45,10 @@ const EditDonations: React.FC = () => {
   const [method, setMethod] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
+
+  // New filter states
+  const [filterMethod, setFilterMethod] = useState<string>('');
+  const [filterMaterialStatus, setFilterMaterialStatus] = useState<string>('');
   
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -183,14 +187,50 @@ const EditDonations: React.FC = () => {
     setModalVisible(true);
   };
 
+  // Filter donations based on method and material status
+  const filteredDonations = donations.filter(item => {
+    let methodMatch = true;
+    let statusMatch = true;
+
+    if (filterMethod.trim() !== '') {
+      methodMatch = item.method && item.method.toLowerCase().includes(filterMethod.toLowerCase());
+    }
+
+    if (filterMaterialStatus.trim() !== '') {
+      if (item.items && Array.isArray(item.items)) {
+        statusMatch = item.items.some((i: any) => i.status.toLowerCase() === filterMaterialStatus.toLowerCase());
+      } else {
+        statusMatch = item.status && item.status.toLowerCase() === filterMaterialStatus.toLowerCase();
+      }
+    }
+
+    return methodMatch && statusMatch;
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Title style={styles.title}>Edit Donations</Title>
         <Text style={styles.subtitle}>Tap a donation to edit it</Text>
       </View>
+      <View style={styles.filterContainer}>
+        <TextInput
+          placeholder="Filter by Method"
+          value={filterMethod}
+          onChangeText={setFilterMethod}
+          mode="outlined"
+          style={styles.filterInput}
+        />
+        <TextInput
+          placeholder="Filter by Material Status"
+          value={filterMaterialStatus}
+          onChangeText={setFilterMaterialStatus}
+          mode="outlined"
+          style={styles.filterInput}
+        />
+      </View>
       <FlatList
-        data={donations}
+        data={filteredDonations}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
@@ -225,7 +265,6 @@ const EditDonations: React.FC = () => {
               {item.selectedDate && <Text style={styles.subText}>Date: {item.selectedDate}</Text>}
               {item.selectedTime && <Text style={styles.subText}>Time: {item.selectedTime}</Text>}
               {item.method && <Text style={{ marginTop: 10 }}>{item.method}</Text>}
-
             </Card.Content>
           </Card>
         )}
@@ -425,6 +464,14 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#666',
+  },
+  filterContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  filterInput: {
+    marginBottom: 10,
+    backgroundColor: '#fff',
   },
   listContainer: {
     paddingBottom: 20,
