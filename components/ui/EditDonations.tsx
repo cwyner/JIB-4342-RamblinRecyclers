@@ -257,14 +257,7 @@ const EditDonations: React.FC = () => {
               <Divider style={styles.divider} />
               <Text style={styles.subText}>Donor: {item.donorName || 'Unknown'}</Text>
               <Text style={styles.subText}>Comment: {item.comment || 'No comments'}</Text>
-              {/* Optionally display new fields if available */}
-              {item.address && <Text style={styles.subText}>Address: {item.address}</Text>}
-              {item.city && <Text style={styles.subText}>City: {item.city}</Text>}
-              {item.state && <Text style={styles.subText}>State: {item.state}</Text>}
-              {item.zipcode && <Text style={styles.subText}>Zipcode: {item.zipcode}</Text>}
-              {item.selectedDate && <Text style={styles.subText}>Date: {item.selectedDate}</Text>}
-              {item.selectedTime && <Text style={styles.subText}>Time: {item.selectedTime}</Text>}
-              {item.method && <Text style={{ marginTop: 10 }}>{item.method}</Text>}
+              
             </Card.Content>
           </Card>
         )}
