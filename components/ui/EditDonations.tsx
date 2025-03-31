@@ -18,6 +18,7 @@ import { Divider, IconButton } from 'react-native-paper';
 interface Item {
   description: string;
   quantity: string;
+  expDate: string; // leave as a string for now, see if we might make an interface to pick a date for expiration.
 }
 
 const EditDonations: React.FC = () => {
@@ -70,6 +71,7 @@ const EditDonations: React.FC = () => {
           donorName,
           itemDescription: editItems[0]?.description || '',
           quantity: editItems[0]?.quantity || '',
+          expDate: editItems[0]?.expDate || '',
           comment
         });
       }
@@ -119,7 +121,7 @@ const EditDonations: React.FC = () => {
   }
 
   const handleAddEditItem = () => {
-    setEditItems([...editItems, { description: '', quantity: '' }]);
+    setEditItems([...editItems, { description: '', quantity: '' , expDate: ''}]);
   };
 
   return (
@@ -145,7 +147,8 @@ const EditDonations: React.FC = () => {
                 // Legacy donation: convert to one-item array.
                 setEditItems([{ 
                   description: item.itemDescription || '', 
-                  quantity: item.quantity ? String(item.quantity) : '' 
+                  quantity: item.quantity ? String(item.quantity) : '' ,
+                  expDate: item.expDate || '',
                 }]);
               }
               setModalVisible(true);
@@ -225,6 +228,13 @@ const EditDonations: React.FC = () => {
                   value={item.quantity}
                   onChangeText={(text) => handleEditItemChange(index, 'quantity', text)}
                   keyboardType="numeric"
+                  style={styles.input}
+                />
+                <TextInput
+                  placeholderTextColor={'grey'}
+                  placeholder="Expiration Date (None)"
+                  value={item.expDate}
+                  onChangeText={(text) => handleEditItemChange(index, 'expDate', text)}
                   style={styles.input}
                 />
               </View>

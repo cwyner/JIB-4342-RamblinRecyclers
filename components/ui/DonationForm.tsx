@@ -8,12 +8,13 @@ import emailjs from 'emailjs-com'
 interface Item {
   description: string
   quantity: string
+  expDate: string
 }
 
 const DonationForm: React.FC = () => {
   const [donorName, setDonorName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
-  const [items, setItems] = useState<Item[]>([{ description: '', quantity: '' }])
+  const [items, setItems] = useState<Item[]>([{ description: '', quantity: '', expDate: ''}])
   const [message, setMessage] = useState<string>('')
 
   const handleItemChange = (index: number, key: keyof Item, value: string) => {
@@ -55,6 +56,7 @@ const DonationForm: React.FC = () => {
             email: email,
             item: items[0].description,
             quantity: items[0].quantity,
+            expDate: items[0].expDate,
             date: new Date().toLocaleDateString(),
           },
           'anOEpZU3l3StWWkoi'
@@ -67,7 +69,7 @@ const DonationForm: React.FC = () => {
       setMessage('Donation logged successfully!')
       setDonorName('')
       setEmail('')
-      setItems([{ description: '', quantity: '' }])
+      setItems([{ description: '', quantity: '', expDate: '' }])
     } catch (error) {
       setMessage('Error logging donation')
       console.error('Error adding document: ', error)
@@ -124,13 +126,21 @@ const DonationForm: React.FC = () => {
               style={styles.input}
               mode="outlined"
             />
+            <TextInput
+              placeholderTextColor={'grey'}
+              placeholder="Expiration Date (optional)"
+              value={item.expDate}
+              onChangeText={(text) => handleItemChange(index, 'expDate', text)}
+              style={styles.input}
+              mode="outlined"
+            />
           </View>
         ))}
         <Button
           icon="plus"
           mode="outlined"
           style={{ marginTop: 16 }}
-          onPress={() => setItems([...items, { description: '', quantity: '' }])}
+          onPress={() => setItems([...items, { description: '', quantity: '', expDate: '' }])}
         >
           Add item
         </Button>
