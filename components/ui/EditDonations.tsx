@@ -11,7 +11,7 @@ import {
   SafeAreaView, 
   ScrollView 
 } from 'react-native';
-import { getFirestore, collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, updateDoc, doc, Firestore, deleteDoc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import { Divider, IconButton } from 'react-native-paper';
 
@@ -28,6 +28,9 @@ const EditDonations: React.FC = () => {
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [comment, setComment] = useState<string>('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [count, setCount] = useState(0);
+  const [subtraction, setSubtraction] = useState(0);
+  const [subtractSubMenuVisible, setSubtractSubMenuVisible] = useState(false);
 
   useEffect(() => {
     fetchDonations();
@@ -93,12 +96,27 @@ const EditDonations: React.FC = () => {
     setEditItems(updatedItems);
   };
 
-  const handleRemoveEditItem = (index: number) => {
+  const handleRemoveEditItem = async (index: number) => {
     if (editItems.length > 1) {
       const updatedItems = editItems.filter((_, i) => i !== index);
       setEditItems(updatedItems);
+    } else {
+      // Delete the entry (remove document) 
+      const db = getFirestore(getApp());
+      //alert(selectedDonation);
+      // This is the problematic line. Unsure how to delete from the database
+      await deleteDoc(doc(db, 'donations', selectedDonation.id));
+      resetModal();
     }
   };
+
+  const handleSubtractItem = (subNumber: number) => {
+    setSubtraction(subtraction + subNumber);
+  }
+
+  const confirmSubtractItem = () => {
+    /* Figure out how to change only the quantity */
+  }
 
   const handleAddEditItem = () => {
     setEditItems([...editItems, { description: '', quantity: '' }]);
@@ -180,12 +198,19 @@ const EditDonations: React.FC = () => {
               <View key={index} style={styles.itemContainer}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemLabel}>Item {index + 1}</Text>
-                  {editItems.length > 1 && (
-                    <IconButton 
-                      icon="delete"
-                      size={20}
-                      onPress={() => handleRemoveEditItem(index)}
-                    />
+                  <Button title="Unsalvage" onPress={() => handleRemoveEditItem(index)}/>
+                  {/* For this, Switch out the Delete Icon with a button that says "Unsalvage"
+                      Add a "Subtract" button if editItems.length > 1. Open sub-menu that subtracts
+                      Different Quantities, and then a number displaying the quantity afterward. Then
+                      a confirmation button. */}
+                  {parseInt(editItems[index].quantity) > 1 && (
+                    <Button title="Subtract" onPress={() => {
+                      /* This part needs me to select the correct index, item, etc */
+                      setSubtraction(0);
+                      setSubtractSubMenuVisible(true);
+                      }
+                    }/>
+                    
                   )}
                 </View>
                 <Divider style={styles.itemDivider} />
