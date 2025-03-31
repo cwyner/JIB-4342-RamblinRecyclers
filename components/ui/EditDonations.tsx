@@ -203,15 +203,15 @@ const EditDonations: React.FC = () => {
                       Add a "Subtract" button if editItems.length > 1. Open sub-menu that subtracts
                       Different Quantities, and then a number displaying the quantity afterward. Then
                       a confirmation button. */}
-                  {parseInt(editItems[index].quantity) > 1 && (
+                  {/*parseInt(editItems[index].quantity) > 1 && (
                     <Button title="Subtract" onPress={() => {
-                      /* This part needs me to select the correct index, item, etc */
+                      // This part needs me to select the correct index, item, etc 
                       setSubtraction(0);
                       setSubtractSubMenuVisible(true);
                       }
                     }/>
                     
-                  )}
+                  )*/}
                 </View>
                 <Divider style={styles.itemDivider} />
                 <TextInput
