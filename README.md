@@ -1,28 +1,43 @@
 # Upcycle Build Overview
 The Upcycle Build application aims to assist those who work in the reuse industry by managing their work all in one place. The app has 3 main functionalities:
-1) An activity calendar for deconstruction workers
-2) A receiving section for reuse center employees to manage their inventory
-3) An upcycling section that tracks the amount of materials diverted from the waste stream to support funding efforts for reuse centers
+1) An activity calendar
+2) A filterable list of inventory
+3) A donation form that logs materials into said inventory
 
 Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for the fast-paced environment they work in.
 
 # Release Notes
+## v0.4.0
+### Features
+- Donation source tracking (drop-off, pickup, event)
+- Material lifecycle tracking
+- Category assignment (wood, metals, textiles) to donations
+- Expiration dates for perishable items
+- Quick removal of items from inventory
+- Filter system on materials screen
+- Weight field now a part of donation form
+- Downloadable donation receipt
+- Google Maps link to address logged in each donation entry
+
+### Bug Fixes
+- Much needed UI updates
+- Improved experience for mobile devices
+
+### Known Issues
+- Filters might work better as a dropdown menu instead of typing input field
+
 ## v0.3.0
 ### Features
 - Material donations can be received into a centralized database
 - Ability to log multiple items in the same donation
 - App view of all logged donations
 - Ability to edit/comment on existing donations
-- Donors are emailed with a receipt of their donation
-- Continuous UI updates
 
 ### Bug Fixes
 - Fixed bug where user could not scroll to see full materials list
 - Added headers to text input fields for user convenience
 
 ### Known Issues
-- Email receipts are currently being sent from a dev's personal email; working on getting access to an official Upcycle Build address
-- Also working on formatting email receipts by PDF, giving them a more professional feel
 - Materials screen still needs some UI updates
 - Logout button in the top right of the screen on materials and receiving tab; should be hamburger menu here instead
 
@@ -56,7 +71,6 @@ Each of these parts makes up an app that provides a quality-of-life service to a
 
 ### Known Issues
 - "Loading" icon spins on Calendar screen when there are no events for that day
-- No Single Sign-On (SSO) functionality yet
 - Calendar brings user to wrong day upon launch
 
 
