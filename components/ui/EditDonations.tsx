@@ -29,9 +29,8 @@ const EditDonations: React.FC = () => {
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [comment, setComment] = useState<string>('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [count, setCount] = useState(0);
-  const [subtraction, setSubtraction] = useState(0);
-  const [subtractSubMenuVisible, setSubtractSubMenuVisible] = useState(false);
+  const [listState, setListState] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchDonations();
@@ -49,6 +48,10 @@ const EditDonations: React.FC = () => {
       console.error('Error fetching donations:', error);
     }
   };
+
+  const refreshItems = () => {
+    setListState(listState + 1);
+  }
 
   const handleEditDonation = async () => {
     if (!selectedDonation) return;
@@ -108,17 +111,10 @@ const EditDonations: React.FC = () => {
       //alert(selectedDonation);
       // This is the problematic line. Unsure how to delete from the database
       await deleteDoc(doc(db, 'donations', selectedDonation.id));
+      refreshItems();
       resetModal();
     }
   };
-
-  const handleSubtractItem = (subNumber: number) => {
-    setSubtraction(subtraction + subNumber);
-  }
-
-  const confirmSubtractItem = () => {
-    /* Figure out how to change only the quantity */
-  }
 
   const handleAddEditItem = () => {
     setEditItems([...editItems, { description: '', quantity: '' , expDate: ''}]);
@@ -129,11 +125,15 @@ const EditDonations: React.FC = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Edit Donations</Text>
         <Text> Tap a donation to edit it:</Text>
+        <Button title="Refresh" onPress={()=>{refreshItems}}/>
       </View>
       <FlatList
         data={donations}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.flatListContainer}
+        extraData={listState}
+        refreshing={refreshing}
+        onRefresh={refreshItems}
         renderItem={({ item }) => (
           <TouchableOpacity 
             onPress={() => {
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   },
   itemDivider: {
     marginBottom: 10,
-  }
+  },
 });
 
 export default EditDonations;
