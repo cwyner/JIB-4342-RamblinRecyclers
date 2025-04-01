@@ -125,7 +125,7 @@ const EditDonations: React.FC = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Edit Donations</Text>
         <Text> Tap a donation to edit it:</Text>
-        <Button title="Refresh" onPress={()=>{refreshItems}}/>
+        {/*<Button title="Refresh" onPress={()=>{refreshItems}}/>*/}
       </View>
       <FlatList
         data={donations}
