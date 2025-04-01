@@ -19,6 +19,7 @@ interface Item {
   description: string;
   quantity: string;
   expDate: string; // leave as a string for now, see if we might make an interface to pick a date for expiration.
+  weight: string; // ditto
 }
 
 const EditDonations: React.FC = () => {
@@ -75,6 +76,7 @@ const EditDonations: React.FC = () => {
           itemDescription: editItems[0]?.description || '',
           quantity: editItems[0]?.quantity || '',
           expDate: editItems[0]?.expDate || '',
+          weight: editItems[0]?.weight || '',
           comment
         });
       }
@@ -117,7 +119,7 @@ const EditDonations: React.FC = () => {
   };
 
   const handleAddEditItem = () => {
-    setEditItems([...editItems, { description: '', quantity: '' , expDate: ''}]);
+    setEditItems([...editItems, { description: '', quantity: '' , expDate: '', weight: ''}]);
   };
 
   return (
@@ -149,6 +151,7 @@ const EditDonations: React.FC = () => {
                   description: item.itemDescription || '', 
                   quantity: item.quantity ? String(item.quantity) : '' ,
                   expDate: item.expDate || '',
+                  weight: item.weight || '',
                 }]);
               }
               setModalVisible(true);
@@ -228,6 +231,13 @@ const EditDonations: React.FC = () => {
                   value={item.quantity}
                   onChangeText={(text) => handleEditItemChange(index, 'quantity', text)}
                   keyboardType="numeric"
+                  style={styles.input}
+                />
+                <TextInput
+                  placeholderTextColor={'grey'}
+                  placeholder="Weight not provided."
+                  value={item.expDate}
+                  onChangeText={(text) => handleEditItemChange(index, 'weight', text)}
                   style={styles.input}
                 />
                 <TextInput

@@ -9,12 +9,13 @@ interface Item {
   description: string
   quantity: string
   expDate: string
+  weight: string
 }
 
 const DonationForm: React.FC = () => {
   const [donorName, setDonorName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
-  const [items, setItems] = useState<Item[]>([{ description: '', quantity: '', expDate: ''}])
+  const [items, setItems] = useState<Item[]>([{ description: '', quantity: '', expDate: '', weight: ''}])
   const [message, setMessage] = useState<string>('')
 
   const handleItemChange = (index: number, key: keyof Item, value: string) => {
@@ -31,7 +32,7 @@ const DonationForm: React.FC = () => {
   }
 
   const handleSubmit = async () => {
-    if (!donorName || !email || items.some(item => !item.description || !item.quantity)) {
+    if (!donorName || !email || items.some(item => !item.description || !item.quantity || !item.weight)) {
       Alert.alert('Please fill in all fields.')
       return
     }
@@ -57,6 +58,7 @@ const DonationForm: React.FC = () => {
             item: items[0].description,
             quantity: items[0].quantity,
             expDate: items[0].expDate,
+            weight: items[0].weight,
             date: new Date().toLocaleDateString(),
           },
           'anOEpZU3l3StWWkoi'
@@ -69,7 +71,7 @@ const DonationForm: React.FC = () => {
       setMessage('Donation logged successfully!')
       setDonorName('')
       setEmail('')
-      setItems([{ description: '', quantity: '', expDate: '' }])
+      setItems([{ description: '', quantity: '', expDate: '', weight: ''}])
     } catch (error) {
       setMessage('Error logging donation')
       console.error('Error adding document: ', error)
@@ -127,6 +129,13 @@ const DonationForm: React.FC = () => {
               mode="outlined"
             />
             <TextInput
+              placeholder="Weight"
+              value={item.expDate}
+              onChangeText={(text) => handleItemChange(index, 'weight', text)}
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
               placeholderTextColor={'grey'}
               placeholder="Expiration Date (optional)"
               value={item.expDate}
@@ -140,7 +149,7 @@ const DonationForm: React.FC = () => {
           icon="plus"
           mode="outlined"
           style={{ marginTop: 16 }}
-          onPress={() => setItems([...items, { description: '', quantity: '', expDate: '' }])}
+          onPress={() => setItems([...items, { description: '', quantity: '', expDate: '', weight: ''}])}
         >
           Add item
         </Button>
