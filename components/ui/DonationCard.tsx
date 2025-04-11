@@ -1,9 +1,10 @@
 // DonationCard.tsx
 import React from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, Pressable, StyleSheet, Alert } from 'react-native';
 import { Card, Text, Divider, IconButton } from 'react-native-paper';
 import { getEmojiForCategory } from './utils';
 import { MaterialStatusTag } from './MaterialStatusTag';
+import { useRouter } from 'expo-router';
 
 export interface Item {
   description: string;
@@ -47,12 +48,26 @@ interface DonationCardProps {
 }
 
 const DonationCard: React.FC<DonationCardProps> = ({ donation, openDonationModal, handleDownloadReceipt, openGoogleMaps, handleDeleteDonation }) => {
+  const router = useRouter()
+  
   return (
     <Card style={styles.card} onPress={() => openDonationModal(donation)}>
       <Card.Content>
         {donation.items && Array.isArray(donation.items) ? (
           donation.items.map((itm: Item, idx: number) => (
-            <View key={idx} style={styles.donationItemContainer}>
+            <Pressable
+              key={idx}
+              style={styles.donationItemContainer}
+              onPress={() => 
+                router.push({
+                  pathname: "/items",
+                  params: {
+                    donationId: donation.id,
+                    idx: idx.toString()
+                  }
+                })
+              }
+            >
               <View style={styles.itemRow}>
                 <Text style={styles.itemText}>
                   {idx + 1}. {itm.description} - {itm.quantity}{' '}
@@ -74,7 +89,7 @@ const DonationCard: React.FC<DonationCardProps> = ({ donation, openDonationModal
                   Weight: {itm.weight} {itm.weightUnit} per unit
                 </Text>
               ) : null}
-            </View>
+            </Pressable>
           ))
         ) : (
           <View style={styles.donationItemContainer}>

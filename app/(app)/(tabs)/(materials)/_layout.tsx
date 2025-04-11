@@ -3,10 +3,9 @@ import { withTheme } from "react-native-paper"
 import { Stack } from "expo-router/stack"
 import { useSession } from "@/components/providers/SessionProvider"
 import { Button } from "react-native-paper"
+import { ScreenHeader } from "@/components/ui/ScreenHeader"
 
 function MaterialsLayout({ theme }: { theme: any }) {
-  const { signOut } = useSession()
-
   return (
     <View
       style={{
@@ -18,10 +17,13 @@ function MaterialsLayout({ theme }: { theme: any }) {
         <Stack.Screen
           name="index"
           options={{
-            title: "Materials",
-            headerRight: () => (
-              <Button onPress={async () => await signOut()}>Log Out</Button>
-            ),
+            header: () => <ScreenHeader title="Materials" />,
+          }}
+        />
+        <Stack.Screen
+          name="items/index"
+          options={{
+            header: () => <ScreenHeader title="Edit Item" />,
           }}
         />
       </Stack>
