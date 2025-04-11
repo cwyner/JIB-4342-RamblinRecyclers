@@ -1,11 +1,12 @@
 import React, { FC, useState, useEffect, useRef } from "react";
-import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
-import { Text, Card, Title, Paragraph, Avatar, IconButton, Divider } from "react-native-paper";
+import { View, StyleSheet, ScrollView, Dimensions, Pressable, Alert, Image } from "react-native";
+import { Text, Card, Avatar, IconButton, Divider } from "react-native-paper";
 import { useLocalSearchParams } from "expo-router";
-import { doc, onSnapshot, getFirestore } from "firebase/firestore";
+import { doc, onSnapshot, getFirestore, updateDoc } from "firebase/firestore";
 import { getApp } from "firebase/app";
 import type { Donation } from "@/components/ui/DonationCard";
-import { Svg, Path } from "react-native-svg";
+import * as ImagePicker from "expo-image-picker";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -13,10 +14,51 @@ const ItemPage: FC = () => {
   const { donationId, idx } = useLocalSearchParams();
   const [donationItems, setDonationItems] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  // currentIndex is based on the initial idx value, defaulting to 0
   const initialIndex = parseInt(idx as string, 10) || 0;
   const [currentIndex, setCurrentIndex] = useState<number>(initialIndex);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const uploadImage = async (cardIndex: number, localUri: string): Promise<string> => {
+    const storage = getStorage(getApp());
+    const filename = `donationImages/${donationId}_${cardIndex}_${Date.now()}.jpg`;
+    const imgRef = storageRef(storage, filename);
+    const response = await fetch(localUri);
+    const blob = await response.blob();
+    await uploadBytes(imgRef, blob);
+    const downloadURL = await getDownloadURL(imgRef);
+    return downloadURL;
+  };
+
+  const handleCameraPress = async (cardIndex: number) => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert("Permission required", "Camera permission is required to take a photo.");
+      return;
+    }
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+    if (!result.canceled) {
+      const localUri = result.assets[0].uri;
+      const updatedItems = [...donationItems];
+      updatedItems[cardIndex] = { ...updatedItems[cardIndex], imageUri: localUri };
+      setDonationItems(updatedItems);
+      
+      try {
+        const downloadURL = await uploadImage(cardIndex, localUri);
+        const db = getFirestore(getApp());
+        const donationRef = doc(db, "donations", donationId as string);
+        updatedItems[cardIndex] = { ...updatedItems[cardIndex], imageUri: downloadURL };
+        await updateDoc(donationRef, { items: updatedItems });
+        setDonationItems(updatedItems);
+        Alert.alert("Success", "Image uploaded and saved!");
+      } catch (err) {
+        console.error("Error uploading image: ", err);
+        Alert.alert("Error", "There was an error uploading the image. The captured image will still be displayed locally.");
+      }
+    }
+  };
 
   useEffect(() => {
     if (!donationId) {
@@ -34,7 +76,6 @@ const ItemPage: FC = () => {
           if (data.items && Array.isArray(data.items)) {
             setDonationItems(data.items);
             setError(null);
-            // Scroll to initial index after items are loaded
             setTimeout(() => {
               scrollViewRef.current?.scrollTo({ x: initialIndex * windowWidth, animated: false });
             }, 100);
@@ -60,12 +101,6 @@ const ItemPage: FC = () => {
     setCurrentIndex(newIndex);
   };
 
-  const ItemIcon = () => (
-    <Svg width="40" height="40" viewBox="0 0 24 24">
-      <Path fill="#6200ee" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm4 0h-2v-4h2v4z"/>
-    </Svg>
-  );
-
   if (error) {
     return (
       <View style={styles.centered}>
@@ -73,7 +108,7 @@ const ItemPage: FC = () => {
       </View>
     );
   }
-
+  
   if (donationItems.length === 0) {
     return (
       <View style={styles.centered}>
@@ -81,12 +116,9 @@ const ItemPage: FC = () => {
       </View>
     );
   }
-
+  
   return (
-    <ScrollView 
-      contentContainerStyle={styles.outerContainer}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={styles.outerContainer} showsVerticalScrollIndicator={false}>
       <View style={styles.contentContainer}>
         <ScrollView
           ref={scrollViewRef}
@@ -110,38 +142,27 @@ const ItemPage: FC = () => {
                       {...props}
                       icon="pencil"
                       onPress={() => {
-                        // to be implemented
+                        // Editing functionality placeholder.
                       }}
                     />
                   )}
                 />
                 <Card.Content>
-                  <View style={styles.iconContainer}>
-                    <ItemIcon />
-                  </View>
-                  <Title style={styles.itemTitle}>{item.description}</Title>
-                  <Paragraph style={styles.paragraph}>
-                    <Text style={styles.label}>Quantity: </Text>
-                    {item.quantity}
-                  </Paragraph>
-                  {item.weight ? (
-                    <Paragraph style={styles.paragraph}>
-                      <Text style={styles.label}>Weight: </Text>
-                      {item.weight} {item.weightUnit || ""}
-                    </Paragraph>
-                  ) : null}
-                  {item.status ? (
-                    <Paragraph style={styles.paragraph}>
-                      <Text style={styles.label}>Status: </Text>
-                      {item.status}
-                    </Paragraph>
-                  ) : null}
-                  {item.expirationDate ? (
-                    <Paragraph style={styles.paragraph}>
-                      <Text style={styles.label}>Expires: </Text>
-                      {item.expirationDate}
-                    </Paragraph>
-                  ) : null}
+                  {item.imageUri ? (
+                    // Display the image if available.
+                    <Pressable onPress={() => handleCameraPress(index)} style={styles.cameraContainer}>
+                      <Image source={{ uri: item.imageUri }} style={styles.previewImage} />
+                    </Pressable>
+                  ) : (
+                    // Otherwise, show the camera button.
+                    <Pressable onPress={() => handleCameraPress(index)} style={styles.cameraContainer}>
+                      <IconButton icon="camera" size={50} />
+                    </Pressable>
+                  )}
+                  <Text>Quantity: {item.quantity}</Text>
+                  {item.weight && <Text>Weight: {item.weight} {item.weightUnit || ""}</Text>}
+                  {item.status && <Text>Status: {item.status}</Text>}
+                  {item.expirationDate && <Text>Expires: {item.expirationDate}</Text>}
                 </Card.Content>
                 <Divider style={styles.divider} />
                 <Card.Actions style={styles.actions}>
@@ -149,14 +170,14 @@ const ItemPage: FC = () => {
                     icon="share-variant"
                     size={24}
                     onPress={() => {
-                      // to be implemented
+                      // Placeholder for share functionality.
                     }}
                   />
                   <IconButton
                     icon="delete"
                     size={24}
                     onPress={() => {
-                      // to be implemented
+                      // Placeholder for delete functionality.
                     }}
                   />
                 </Card.Actions>
@@ -164,7 +185,6 @@ const ItemPage: FC = () => {
             </View>
           ))}
         </ScrollView>
-        {/* Pagination indicator directly under the card */}
         <View style={styles.pagination}>
           {donationItems.map((_, index) => (
             <View key={index} style={[styles.dot, currentIndex === index ? styles.activeDot : {}]} />
@@ -204,27 +224,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  iconContainer: {
+  cameraContainer: {
+    width: 200,
+    height: 200,
+    borderWidth: 2,
+    borderColor: "#6200ee",
+    borderRadius: 10,
+    justifyContent: "center",
     alignItems: "center",
-    marginVertical: 10,
+    alignSelf: "center",
+    marginBottom: 20,
   },
-  itemTitle: {
-    marginTop: 10,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  paragraph: {
-    marginVertical: 5,
-    fontSize: 16,
-  },
-  label: {
-    fontWeight: "bold",
+  previewImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 10,
   },
   divider: {
     marginVertical: 10,
   },
   actions: {
-    justifyContent: "flex-end",
+    justifyContent: "space-evenly",
+    width: "100%",
   },
   pagination: {
     flexDirection: "row",
