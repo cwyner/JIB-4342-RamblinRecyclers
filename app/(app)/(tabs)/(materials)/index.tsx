@@ -4,10 +4,8 @@ import EditDonations from "@/components/ui/EditDonations";
 
 function Materials({ theme }: { theme: any }) {
   return (
-    <View>
-      <EditDonations />
-    </View>
+    <EditDonations />
   );
 }
 
-export default EditDonations;
+export default Materials;
