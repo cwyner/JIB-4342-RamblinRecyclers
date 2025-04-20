@@ -5,7 +5,6 @@ import { getFirestore, collection, addDoc } from 'firebase/firestore'
 import { getApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { SegmentedButtons } from "react-native-paper"
-import emailjs from 'emailjs-com'
 import { TimePickerModal, DatePickerModal } from "react-native-paper-dates"
 import { Snackbar } from 'react-native-paper'
 
@@ -138,26 +137,7 @@ const DonationForm: React.FC = () => {
       }
       await addDoc(collection(db, 'events'), eventData)
 
-      /*
-      emailjs
-        .send(
-          'service_xgdp28h',
-          'template_jaefims',
-          {
-            donor_name: donorName,
-            email: email,
-            item: items[0].description,
-            quantity: items[0].quantity,
-            date: new Date().toLocaleDateString(),
-          },
-          'anOEpZU3l3StWWkoi'
-        )
-        .then(() => {
-          showToast('Donation recorded and receipt emailed!')
-        })
-        .catch((error) => console.error('Email sending error:', error))
-      */
-      showToast('Donation recorded and receipt emailed!')
+      showToast('Donation recorded!')
       setDonorName('')
       setEmail('')
       setItems([{ description: '', quantity: '', status: 'Awaiting', materialCategory: '' }])
