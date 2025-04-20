@@ -217,7 +217,11 @@ const DonationEditModal: React.FC<DonationEditModalProps> = ({
         mode="single"
         visible={expirationDatePickerVisible}
         onDismiss={handleDismissExpirationDatePicker}
-        
+        date={
+          expirationItemIndex !== null && editItems[expirationItemIndex].expirationDate 
+            ? new Date(editItems[expirationItemIndex].expirationDate)
+            : new Date()
+        }
         onConfirm={handleConfirmExpirationDate}
       />
     </Portal>
