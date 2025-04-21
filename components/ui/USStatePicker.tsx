@@ -60,28 +60,34 @@ interface USStatePickerProps {
   setState: Dispatch<SetStateAction<string>>
 }
 
-export const USStatePicker: FC<USStatePickerProps> = ({ state, setState }) => {
-  return (
-    <View style={styles.container}>
-      <Picker
-        selectedValue={state}
-        onValueChange={(itemValue) => setState(itemValue)}
-        style={styles.picker}
-      >
-        {states.map((state) => (
-          <Picker.Item label={state.label} value={state.value} key={state.value} />
-        ))}
-      </Picker>
-    </View>
-  )
-}
+export const USStatePicker: FC<USStatePickerProps> = ({ state, setState }) => (
+  <View style={styles.container}>
+    <Picker
+      selectedValue={state}
+      onValueChange={setState}
+      mode="dropdown"
+      style={styles.picker}
+      itemStyle={styles.itemStyle}
+    >
+      {states.map(s => (
+        <Picker.Item key={s.value} label={s.label} value={s.value} />
+      ))}
+    </Picker>
+  </View>
+)
 
 const styles = StyleSheet.create({
   container: {
-    margin: 20,
+    flex: 1,               // take available space in the row
+    height: 50,            // enough to show the select box
+    justifyContent: "center",
+    marginBottom: 15,
   },
   picker: {
-    height: 25,
-    width: '100%',
+    width: "100%",
+    height: "100%",
+  },
+  itemStyle: {
+    height: 50,
   },
 })

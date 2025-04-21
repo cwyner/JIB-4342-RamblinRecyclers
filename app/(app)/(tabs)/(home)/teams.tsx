@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from "react"
-import { ScrollView, View, StyleSheet, Alert } from "react-native"
+import React, { useEffect, useState, useMemo } from "react"
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  Alert,
+  FlatList,
+} from "react-native"
 import {
   withTheme,
   Card,
@@ -12,6 +18,8 @@ import {
   Dialog,
   TextInput,
   RadioButton,
+  Avatar,
+  Divider,
 } from "react-native-paper"
 import {
   getFirestore,
@@ -23,7 +31,7 @@ import {
   doc,
   updateDoc,
   addDoc,
-  arrayUnion, // <-- Import arrayUnion
+  arrayUnion,
 } from "firebase/firestore"
 import { useSession } from "@/components/providers/SessionProvider"
 
@@ -34,16 +42,7 @@ type Team = {
   members: { uid: string; role: string }[]
 }
 
-interface Event {
-  hour: string
-  duration: string
-  title: string
-  description?: string
-  date: string
-  teamName?: string
-}
-
-function TeamsScreen({ theme }: { theme: any }) {
+export default withTheme(function TeamsScreen({ theme }: { theme: any }) {
   const { user, isLoading } = useSession()
   const db = getFirestore()
 
@@ -60,292 +59,144 @@ function TeamsScreen({ theme }: { theme: any }) {
   const [targetTeam, setTargetTeam] = useState<Team | null>(null)
 
   const [showManageTeamDialog, setShowManageTeamDialog] = useState(false)
-  const [manageTeam, setManageTeam] = useState<Team | null>(null)
-  const [memberNames, setMemberNames] = useState(null)
-
-  const [showTasksDialog, setShowTasksDialog] = useState(false)
-  const [teamTasks, setTeamTasks] = useState(null)
-  const [currentlySelectedMember, setCurrentlySelectedMember] = useState(null)
-  const [currentlySelectedEvent, setCurrentlySelectedEvent] = useState(null)
+  const [memberNames, setMemberNames] = useState<Record<string,string>>({})
 
   const [newMemberEmail, setNewMemberEmail] = useState("")
   const [newMemberRole, setNewMemberRole] = useState<"member" | "manager">(
     "member"
   )
 
+  // — Load user’s orgs
   useEffect(() => {
-    if (!user) return
-    loadUserOrgs()
+    if (user) loadUserOrgs()
   }, [user])
 
-  useEffect(() => {
-    if (userOrgs.length > 0) {
-      loadTeamsForUserOrgs()
-    } else {
-      setTeams([])
+  const loadUserOrgs = async () => {
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid))
+      setUserOrgs(snap.exists() ? snap.data().organizations ?? [] : [])
+    } catch (err) {
+      console.error(err)
     }
+  }
+
+  // — Load teams once we know orgs
+  useEffect(() => {
+    if (userOrgs.length) loadTeams()
+    else setTeams([])
   }, [userOrgs])
 
-  async function loadUserOrgs() {
-    if (!user) return
+  const loadTeams = async () => {
     try {
-      const userDocRef = doc(db, "users", user.uid)
-      const userSnap = await getDoc(userDocRef)
-      if (userSnap.exists()) {
-        const userData = userSnap.data()
-        setUserOrgs(userData.organizations ?? [])
-      }
-    } catch (err) {
-      console.error("Error loading user orgs:", err)
-    }
-  }
-
-  const loadTeamsForUserOrgs = async () => {
-    try {
-      const allTeams: Team[] = []
-
-      for (const org of userOrgs) {
-        const qTeams = query(
-          collection(db, "teams"),
-          where("orgId", "==", org.orgId)
-        )
-        const snapshot = await getDocs(qTeams)
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data() as Omit<Team, "id">
-          allTeams.push({
-            id: docSnap.id,
-            orgId: data.orgId,
-            name: data.name,
-            members: data.members ?? [],
-          })
+      const all: Team[] = []
+      await Promise.all(
+        userOrgs.map(async (o) => {
+          const q = query(collection(db, "teams"), where("orgId", "==", o.orgId))
+          const snap = await getDocs(q)
+          snap.forEach(docSnap =>
+            all.push({ id: docSnap.id, ...(docSnap.data() as Omit<Team, "id">) })
+          )
         })
-      }
-
-      setTeams(allTeams)
-    } catch (error) {
-      console.error("Error loading teams:", error)
+      )
+      setTeams(all)
+    } catch (err) {
+      console.error(err)
     }
   }
 
-  const userTeams = teams.slice().sort((a, b) => {
-    const userInA = a.members.some((m) => m.uid === user?.uid)
-    const userInB = b.members.some((m) => m.uid === user?.uid)
-    if (userInA && !userInB) return -1 // A first
-    if (!userInA && userInB) return 1 // B first
-    return a.name.localeCompare(b.name) // Otherwise, alphabetical
-  })
+  const isOrgAdmin = (orgId: string) =>
+    userOrgs.find(o => o.orgId === orgId)?.role === "admin"
 
-  const isOrgAdmin = (orgId: string): boolean => {
-    const membership = userOrgs.find((o) => o.orgId === orgId)
-    return membership?.role === "admin"
-  }
-  const getMemberNames = async (team): String[] => {
-      try {
-          const foundMemberNames = {}
-          await Promise.all(
-              team.members.map(async (m) => {
-                  const memberRef = doc(db, 'users', m.uid)
-                  const mDoc = await getDoc(memberRef)
-                  if (mDoc.exists()) {
-                      const mData = mDoc.data()
-                      foundMemberNames[m.uid] = mData.firstName + " " + mData.lastName
-                  }
-                  })
-              )
-          setMemberNames(foundMemberNames)
-      } catch (error) {
-          console.error(error)
-          return ""
-      }
-  }
-
-  const fetchEvents = async (team) => {
-      try {
-          const eventQuery = query(
-              collection(db, "events"),
-              where("team", "==", team.name) // Not sure why this isn't team.id in the firebase.
-              )
-          const snap = await getDocs(eventQuery)
-          if (snap.empty) {
-              return;
-              }
-
-          const events = snap.docs.map((docsSnap) => {
-              const data = docsSnap.data() as Event & { date?: string }
-              return {
-                  ...data,
-                  id: docsSnap.id,
-                  title: data.title ?? "Untitled",
-                  }
-              })
-          console.log(events.length)
-          setTeamTasks(events)
-          } catch (error) {
-          console.log(error)
-      }
-  }
-
-  const handleCreateTeam = async () => {
-    if (!selectedOrgId || !newTeamName) return
-
-    try {
-      const newTeamRef = await addDoc(collection(db, "teams"), {
-        orgId: selectedOrgId,
-        name: newTeamName,
-        members: [], // initially empty
+  // — Fetch display names for members
+  const getMemberNames = async (team: Team) => {
+    const names: Record<string,string> = {}
+    await Promise.all(
+      team.members.map(async m => {
+        const snap = await getDoc(doc(db, "users", m.uid))
+        if (snap.exists()) {
+          const d = snap.data()
+          names[m.uid] = `${d.firstName} ${d.lastName}`
+        }
       })
-      console.log("Created new team:", newTeamRef.id)
-
-      await loadTeamsForUserOrgs()
-    } catch (error) {
-      console.error("Error creating new team:", error)
-    }
-
-    setNewTeamName("")
-    setSelectedOrgId(null)
-    setShowAddTeamDialog(false)
+    )
+    setMemberNames(names)
   }
 
+  // — Handlers to open dialogs
+  const onManageTeam = async (team: Team) => {
+    await getMemberNames(team)
+    setTargetTeam(team)
+    setShowManageTeamDialog(true)
+  }
+
+  // — Add member
   const handleAddMember = async () => {
     if (!targetTeam || !newMemberEmail.trim()) return
-
     try {
-      // 1. Find the user doc by email
-      const q = query(
-        collection(db, "users"),
-        where("email", "==", newMemberEmail.trim().toLowerCase())
+      const userSnap = await getDocs(
+        query(
+          collection(db, "users"),
+          where("email", "==", newMemberEmail.trim().toLowerCase())
+        )
       )
-      const snapshot = await getDocs(q)
-
-      if (snapshot.empty) {
-        Alert.alert("User Not Found", "No user exists with that email.")
+      if (userSnap.empty) {
+        Alert.alert("User Not Found")
         return
       }
-
-      // 2. Extract the user document ID (which should match the user's UID)
-      const userDoc = snapshot.docs[0]
-      const foundUserId = userDoc.id
-
-      // 3. Update the team's members
-      const updatedTeam: Team = {
-        ...targetTeam,
-        members: [
-          ...targetTeam.members,
-          { uid: foundUserId, role: newMemberRole },
-        ],
-      }
-
-      await updateDoc(doc(db, "teams", targetTeam.id), {
-        members: updatedTeam.members,
-      })
-
-      // 4. Also update the user document to include this team's ID in their teamIds array
-      //    If the `teamIds` field doesn’t exist yet, `arrayUnion` will create it.
-      const userDocRef = doc(db, "users", foundUserId)
-      await updateDoc(userDocRef, {
-        teamIds: arrayUnion(targetTeam.id),
-      })
-
-      // 5. Update local state to reflect the new member in the team
-      setTeams((prev) =>
-        prev.map((t) => (t.id === targetTeam.id ? updatedTeam : t))
-      )
-    } catch (error) {
-      console.error("Error adding member to team:", error)
-      Alert.alert("Error", "Failed to add member. Please try again.")
+      const uid = userSnap.docs[0].id
+      const updated = [
+        ...targetTeam.members,
+        { uid, role: newMemberRole },
+      ]
+      await updateDoc(doc(db, "teams", targetTeam.id), { members: updated })
+      setTeams(ts => ts.map(t => t.id === targetTeam.id ? {...t, members: updated } : t))
+      setShowAddMemberDialog(false)
+      setNewMemberEmail("")
+    } catch (err) {
+      console.error(err)
+      Alert.alert("Error adding member")
     }
-
-    setNewMemberEmail("")
-    setNewMemberRole("member")
-    setTargetTeam(null)
-    setShowAddMemberDialog(false)
   }
-
-  const handleManageTeam = async () => {
-      if (!targetTeam) {return;}
-      // Assign to the database
-  }
-
-  const handleApplyTask = async(member, task) => {
-        //if (!member | !task) {return;}
-        try {
-            // 1. Find the user
-            const memberRef = doc(db, 'users', member.uid)
-            const mDoc = await getDoc(memberRef)
-            if (!mDoc.exists()) {
-                console.error("No member with this id exists!")
-                return;
-            }
-            const mData = mDoc.data()
-
-            // 2. Add task to tasks item
-            await updateDoc(memberRef, {taskIDs: arrayUnion(task.title),})
-            // 3. save
-            console.log("Saved!")
-        } catch (error) {
-            console.error(error)
-        }
-      }
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: theme.colors.background,
-          padding: 16,
-        }}
-      >
-        <Subheading>Loading data...</Subheading>
+      <View style={styles.loadingContainer(theme)}>
+        <Subheading>Loading teams…</Subheading>
       </View>
     )
   }
-
   if (!user) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: theme.colors.background,
-          padding: 16,
-        }}
-      >
-        <Subheading>Please sign in to view the Teams page.</Subheading>
+      <View style={styles.loadingContainer(theme)}>
+        <Subheading>Please sign in to view your teams.</Subheading>
       </View>
     )
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <Card style={styles.card}>
-        <Card.Title title="Teams" />
-        <Card.Content>
-          {userTeams.map((team) => {
-            const matchingOrg = userOrgs.find((o) => o.orgId === team.orgId)
-            const orgName = matchingOrg ? matchingOrg.orgName : team.orgId // fallback to ID if not found
-
-            const userInTeam = team.members.some((m) => m.uid === user.uid)
-
-            return (
-              <View
-                key={team.id}
-                style={[
-                  styles.teamRow,
-                  userInTeam && { backgroundColor: "#e3f2fd" },
-                ]}
-              >
-                <List.Item
-                  title={team.name}
-                  description={`Org: ${orgName}`}
-                  onPress={() => {
-                      getMemberNames(team)
-                      fetchEvents(team)
-                      setTargetTeam(team)
-                      setShowManageTeamDialog(true)
-                  }}
-                />
-                {isOrgAdmin(team.orgId) && (
+    <ScrollView style={styles.root(theme)}>
+      <FlatList
+        data={teams}
+        keyExtractor={t => t.id}
+        contentContainerStyle={{ padding: 16 }}
+        renderItem={({ item: team }) => {
+          const orgName = userOrgs.find(o => o.orgId === team.orgId)?.orgName
+          const youAreIn = team.members.some(m => m.uid === user.uid)
+          return (
+            <Card
+              style={[
+                styles.teamCard,
+                youAreIn && { backgroundColor: theme.colors.primaryLight },
+              ]}
+              elevation={4}
+            >
+              <Card.Title
+                title={team.name}
+                subtitle={orgName}
+                left={props => <Avatar.Icon {...props} icon="account-group" />}
+                right={props => isOrgAdmin(team.orgId) && (
                   <IconButton
+                    {...props}
                     icon="account-multiple-plus"
                     onPress={() => {
                       setTargetTeam(team)
@@ -353,125 +204,71 @@ function TeamsScreen({ theme }: { theme: any }) {
                     }}
                   />
                 )}
-              </View>
-            )
-          })}
-
-          {userOrgs.some((o) => o.role === "admin") && (
-            <Button
-              icon="plus"
-              mode="outlined"
-              style={{ marginTop: 16 }}
-              onPress={() => setShowAddTeamDialog(true)}
-            >
-              Create New Team
-            </Button>
-          )}
-        </Card.Content>
-      </Card>
-
-      {/* MANAGE TEAM DIALOG */}
-      <Portal>
-      <Dialog
-        visible={showManageTeamDialog}
-        onDismiss={() => setShowManageTeamDialog(false)}
-      >
-      <Dialog.Title>Manage Team</Dialog.Title>
-        {/* Remember to add team name to Dialog.Title. Also, make sure to have the list of members being displayed for each team. */}
-        {/* Make sure to make each member generator a list button. Assign tasks on the members screen. */}
-      <Dialog.Content>
-      {memberNames && targetTeam && targetTeam.members && targetTeam.members.map((m) => {
-              return(
-                  <View
-                  key={m.uid}
-                  style={[
-                      styles.teamRow,
-                      { backgroundColor: "#e3f2fd" },
-                      ]}
+              />
+              <Divider />
+              <Card.Actions style={styles.cardActions}>
+                <Button
+                  mode="text"
+                  onPress={() => onManageTeam(team)}
+                  compact
+                >
+                  Manage
+                </Button>
+                {youAreIn && (
+                  <Button
+                    mode="contained"
+                    onPress={() => {/* maybe navigate to tasks */}}
                   >
-                  <List.Item
-                  key={m.uid}
-                  title={memberNames[m.uid]}
-                  description={m.role}
-                  />
-                  {isOrgAdmin(targetTeam.orgId) && (
-                      <IconButton
-                      icon="account-multiple-plus"
-                      onPress={() => {
-                        //Assign tasks
-                        setCurrentlySelectedMember(m)
-                        setShowTasksDialog(true)
-                      }}
-                      />
-                  )}
-                  </View>
-                  )
-              }
-          )}
-
-      </Dialog.Content>
-      </Dialog>
-      </Portal>
-
-      {/* Show Tasks Dialog */}
-      <Portal>
-      <Dialog
-      visible={showTasksDialog}
-      onDismiss={() => setShowTasksDialog(false)}
-      >
-      <Dialog.Title>Assign Taks</Dialog.Title>
-      <Dialog.Content>
-      {teamTasks && teamTasks.map((task) => {
-          return(
-          <View
-          key={task.id}
-          >
-          <List.Item
-          title={task.title}
-          onPress={() => {
-              // Set member to have task
-              setCurrentlySelectedEvent(task)
-              handleApplyTask(currentlySelectedMember, task)
-              }}
-          />
+                    Your Tasks
+                  </Button>
+                )}
+              </Card.Actions>
+            </Card>
+          )
+        }}
+        ListEmptyComponent={() => (
+          <View style={{ padding: 32, alignItems: "center" }}>
+            <Text>No teams yet.</Text>
           </View>
-          )})}
-      </Dialog.Content>
-      </Dialog>
-      </Portal>
+        )}
+      />
 
-      {/* CREATE TEAM DIALOG */}
+      {isOrgAdmin("") && (
+        <Button
+          icon="plus"
+          mode="contained"
+          style={styles.createButton}
+          onPress={() => setShowAddTeamDialog(true)}
+        >
+          Create Team
+        </Button>
+      )}
+
+      {/* Create Team Dialog */}
       <Portal>
         <Dialog
           visible={showAddTeamDialog}
           onDismiss={() => setShowAddTeamDialog(false)}
         >
-          <Dialog.Title>Create Team</Dialog.Title>
+          <Dialog.Title>Create New Team</Dialog.Title>
           <Dialog.Content>
             <TextInput
               label="Team Name"
               value={newTeamName}
               onChangeText={setNewTeamName}
-              style={{ marginBottom: 8 }}
+              style={styles.dialogInput}
             />
-
-            <Subheading style={{ marginTop: 8 }}>
-              Choose Organization:
-            </Subheading>
+            <Subheading>Select Organization</Subheading>
             {userOrgs
-              .filter((o) => o.role === "admin") // only orgs user is admin of
-              .map((o) => (
+              .filter(o => o.role === "admin")
+              .map(o => (
                 <List.Item
                   key={o.orgId}
                   title={o.orgName}
                   onPress={() => setSelectedOrgId(o.orgId)}
                   left={() => (
                     <RadioButton
-                      status={
-                        selectedOrgId === o.orgId ? "checked" : "unchecked"
-                      }
-                      onPress={() => setSelectedOrgId(o.orgId)}
-                      value={o.orgId}
+                      status={selectedOrgId === o.orgId ? "checked" : "unchecked"}
                     />
                   )}
                 />
@@ -480,8 +277,20 @@ function TeamsScreen({ theme }: { theme: any }) {
           <Dialog.Actions>
             <Button onPress={() => setShowAddTeamDialog(false)}>Cancel</Button>
             <Button
-              onPress={handleCreateTeam}
-              disabled={!selectedOrgId || !newTeamName}
+              onPress={async () => {
+                if (selectedOrgId && newTeamName) {
+                  await addDoc(collection(db, "teams"), {
+                    orgId: selectedOrgId,
+                    name: newTeamName,
+                    members: [],
+                  })
+                  loadTeams()
+                  setShowAddTeamDialog(false)
+                  setNewTeamName("")
+                  setSelectedOrgId(null)
+                }
+              }}
+              disabled={!selectedOrgId || !newTeamName.trim()}
             >
               Create
             </Button>
@@ -489,66 +298,102 @@ function TeamsScreen({ theme }: { theme: any }) {
         </Dialog>
       </Portal>
 
-      {/* ADD MEMBER DIALOG */}
+      {/* Add Member Dialog */}
       <Portal>
         <Dialog
           visible={showAddMemberDialog}
           onDismiss={() => setShowAddMemberDialog(false)}
         >
-          <Dialog.Title>Add Member</Dialog.Title>
+          <Dialog.Title>Add Member to {targetTeam?.name}</Dialog.Title>
           <Dialog.Content>
-            {targetTeam && (
-              <>
-                <Text style={{ marginBottom: 8 }}>
-                  Add a member to team: {targetTeam.name}
-                </Text>
-                <TextInput
-                  label="New Member Email"
-                  value={newMemberEmail}
-                  onChangeText={setNewMemberEmail}
-                  style={{ marginBottom: 8 }}
-                />
-                <Subheading style={{ marginBottom: 8 }}>Role:</Subheading>
-                <RadioButton.Group
-                  onValueChange={(val) =>
-                    setNewMemberRole(val as "member" | "manager")
-                  }
-                  value={newMemberRole}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <RadioButton value="member" />
-                    <Text>Member</Text>
-                  </View>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <RadioButton value="manager" />
-                    <Text>Manager</Text>
-                  </View>
-                </RadioButton.Group>
-              </>
-            )}
+            <TextInput
+              label="Member Email"
+              value={newMemberEmail}
+              onChangeText={setNewMemberEmail}
+              style={styles.dialogInput}
+            />
+            <Subheading>Select Role</Subheading>
+            <RadioButton.Group
+              onValueChange={val => setNewMemberRole(val as any)}
+              value={newMemberRole}
+            >
+              {["member", "manager"].map(r => (
+                <View key={r} style={styles.radioRow}>
+                  <RadioButton value={r} />
+                  <Text>{r.charAt(0).toUpperCase() + r.slice(1)}</Text>
+                </View>
+              ))}
+            </RadioButton.Group>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setShowAddMemberDialog(false)}>
-              Cancel
-            </Button>
+            <Button onPress={() => setShowAddMemberDialog(false)}>Cancel</Button>
             <Button onPress={handleAddMember} disabled={!newMemberEmail.trim()}>
               Add
             </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      {/* Manage Team Dialog */}
+      <Portal>
+        <Dialog
+          visible={showManageTeamDialog}
+          onDismiss={() => setShowManageTeamDialog(false)}
+        >
+          <Dialog.Title>Team Members</Dialog.Title>
+          <Dialog.Content>
+            {(targetTeam?.members || []).map(m => (
+              <List.Item
+                key={m.uid}
+                title={memberNames[m.uid] || "Loading..."}
+                description={m.role}
+                left={props => <Avatar.Text {...props} label={m.role.charAt(0).toUpperCase()} />}
+              />
+            ))}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowManageTeamDialog(false)}>Close</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </ScrollView>
   )
-}
-
-const styles = StyleSheet.create({
-  card: {
-    margin: 16,
-  },
-  teamRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
 })
 
-export default withTheme(TeamsScreen)
+const styles = StyleSheet.create({
+  root: (theme: any) => ({
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  }),
+  loadingContainer: (theme: any) => ({
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.background,
+    padding: 16,
+  }),
+  teamCard: {
+    marginBottom: 12,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  cardActions: {
+    justifyContent: "flex-end",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  createButton: {
+    margin: 16,
+    borderRadius: 24,
+    elevation: 2,
+    backgroundColor: '#6200ee',
+  },
+  dialogInput: {
+    marginBottom: 16,
+  },
+  radioRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+})

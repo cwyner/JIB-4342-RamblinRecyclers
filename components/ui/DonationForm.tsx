@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth'
 import { SegmentedButtons } from "react-native-paper"
 import { TimePickerModal, DatePickerModal } from "react-native-paper-dates"
 import { Snackbar } from 'react-native-paper'
+import { USStatePicker } from './USStatePicker'
 
 interface Item {
   description: string
@@ -197,7 +198,7 @@ const DonationForm: React.FC = () => {
             value={city}
             onChangeText={setCity}
             keyboardType="default"
-            style={{ marginBottom: 15, flex: 1 }}
+            style={{ marginBottom: 15, overflow: "scroll", width: 175 }}
             mode="outlined"
           />
           <TextInput
@@ -205,10 +206,12 @@ const DonationForm: React.FC = () => {
             value={state}
             onChangeText={setState}
             keyboardType="default"
-            style={{ marginHorizontal: 6, marginBottom: 15, flex: 1 }}
+            style={{ marginHorizontal: 6, marginBottom: 15, overflow: "scroll" }}
             mode="outlined"
           />
-          <TextInput
+        </View>
+
+        <TextInput
             placeholder="Zip Code"
             value={zipcode}
             onChangeText={setZipcode}
@@ -216,7 +219,6 @@ const DonationForm: React.FC = () => {
             style={{ marginBottom: 15, flex: 1 }}
             mode="outlined"
           />
-        </View>
 
         <Button
           mode="outlined"
