@@ -5,9 +5,9 @@ import { getFirestore, collection, addDoc } from 'firebase/firestore'
 import { getApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { SegmentedButtons } from "react-native-paper"
-import emailjs from 'emailjs-com'
 import { TimePickerModal, DatePickerModal } from "react-native-paper-dates"
 import { Snackbar } from 'react-native-paper'
+import { USStatePicker } from './USStatePicker'
 
 interface Item {
   description: string
