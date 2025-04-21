@@ -134,15 +134,7 @@ const DonationEditModal: React.FC<DonationEditModalProps> = ({
                 style={styles.input}
               />
             )}
-            {donation?.zipcode !== undefined && (
-              <TextInput
-                placeholder="Zip Code"
-                defaultValue={zipcode}
-                onChangeText={setZipcode}
-                mode="outlined"
-                style={styles.input}
-              />
-            )}
+            
             {donation?.selectedDate !== undefined && (
               <TextInput
                 placeholder="Selected Date"
