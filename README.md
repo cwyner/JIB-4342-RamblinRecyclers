@@ -71,4 +71,4 @@ Attached here is a link to the installation guide that will get you started with
 ### Detailed Design Document
 Attached here is a link to the detailed design document for our app, providing a deep dive into the design choices we made along the way:
 
-[link goes here]
+(https://github.com/cwyner/JIB-4342-RamblinRecyclers/blob/1ebd4ae66becac214cad053951aa13e3e04b4765/Detailed%20Design%20Document%20-%20JIB%204342.pdf)
