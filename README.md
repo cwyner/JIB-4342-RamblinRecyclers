@@ -3,7 +3,7 @@ The Upcycle Build application aims to assist those who work in the reuse industr
 
 1) A donation form that logs materials into inventory
 2) A filterable list of inventory
-3) An calendar for task management
+3) A calendar for task management
 
 Each of these parts makes up an app that provides a critical service to all of those working in this industry. It replaces their antiquated pen and paper ledger systems and gives them a tool to maximize efficiency and properly measure their environmental impact, a process that is essential for them to gain funding and continue helping the environment.
 
