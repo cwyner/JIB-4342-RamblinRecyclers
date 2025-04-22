@@ -8,7 +8,7 @@ The Upcycle Build application aims to assist those who work in the reuse industr
 Each of these parts makes up an app that provides a critical service to all of those working in this industry. It replaces their antiquated pen and paper ledger systems and gives them a tool to maximize efficiency and properly measure their environmental impact, a process that is essential for them to gain funding and continue helping the environment.
 
 # Release Notes
-## Features
+### Features
 - Donation source tracking (drop-off, pickup, event)
 - Material lifecycle tracking
 - Category assignment (wood, metals, textiles) to donations
@@ -36,11 +36,11 @@ Each of these parts makes up an app that provides a critical service to all of t
 - Authentication
 - Firestore Layer
 
-## Known Issues that we have now
+### Known Issues that we have now
 - The feature to take pictures and store them for each donation works in the backend logic, but Firebase requires us to get a premium subscription to make a bucket to store images. We have not passed this paywall, and therefore this feature does not currently work in the app. However, a simple proverbial swipe of the credit card will get this feature properly deployed.
 - Checkboxes for the calendar show up on web view but not mobile view
 
-## Archive of issues we had before but were squashed (refer to bug fixes below)
+### Archive of issues we had before but were squashed (refer to bug fixes below)
 - Filters might work better as a dropdown menu instead of typing input field
 - Materials screen still needs some UI updates
 - Logout button in the top right of the screen on materials and receiving tab; should be hamburger menu here instead
@@ -54,7 +54,7 @@ Each of these parts makes up an app that provides a critical service to all of t
 - No date picker modal
 - No time picker modal
 
-## Bug Fixes
+### Bug Fixes
 - Much needed UI updates
 - Improved experience for mobile devices
 - Fixed bug where user could not scroll to see full materials list
@@ -68,12 +68,12 @@ Each of these parts makes up an app that provides a critical service to all of t
 - Filter and sort functionalities work with the click of a button instead of using a typed input field
 - "Remember me" feature now works
 
-## Installation Guide
+### Installation Guide
 Attached here is a link to the installation guide that will get you started with running this app on your machine:
 
 [link goes here]
 
-## Detailed Design Document
+### Detailed Design Document
 Attached here is a link to the detailed design document for our app, providing a deep dive into the design choices we made along the way:
 
 [link goes here]
