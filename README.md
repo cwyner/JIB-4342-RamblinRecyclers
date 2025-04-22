@@ -67,3 +67,13 @@ Each of these parts makes up an app that provides a critical service to all of t
 - Event pop up modal rendering outside of EventProvider
 - Filter and sort functionalities work with the click of a button instead of using a typed input field
 - "Remember me" feature now works
+
+### Installation Guide
+Attached here is a link to the installation guide that will get you started with running this app on your machine:
+
+<link goes here>
+
+### Detailed Design Document
+Attached here is a link to the detailed design document for our app, providing a deep dive into the design choices we made along the way:
+
+<link goes here>
