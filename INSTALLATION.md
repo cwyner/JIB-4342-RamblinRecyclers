@@ -97,3 +97,5 @@ Follow the prompts.
 - Stuck on "Waiting for connection"
   - Make sure your phone and computer are on the *same LAN*.
   - Run with `npx expo start --tunnel`.
+- CocoaPods issues on iOS \
+  Run `cd ios && pod install`
