@@ -73,11 +73,21 @@ Your project directory should now contain the `ios/` and `android/` directories.
 1. Run `npx expo start`
 2. Press i to start the Android simulator.
 
+## Building for Production
+### Android
+Run the following command in the root directory:\
+`npx expo build:android`\
+Follow the prompts.
+### iOS
+Run the following command in the root directory:\
+`npx expo build:ios`\
+Follow the prompts.
+
 ## Troubleshooting Common Errors
 - Metro bundler errors \
   Run `npx expo start --clear`
 - Module not found
-  Run\
+  Run
   ```bash
   rm -rf node_modules
   npm install
