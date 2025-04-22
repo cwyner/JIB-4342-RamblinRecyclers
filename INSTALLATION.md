@@ -72,3 +72,18 @@ Your project directory should now contain the `ios/` and `android/` directories.
 ### Running with iOS Simulator
 1. Run `npx expo start`
 2. Press i to start the Android simulator.
+
+## Troubleshooting Common Errors
+- Metro bundler errors \
+  Run `npx expo start --clear`
+- Module not found
+  Run\
+  ```bash
+  rm -rf node_modules
+  npm install
+  ```
+- Incompatible SDK version
+  Run `npx expo doctor`
+- Stuck on "Waiting for connection"
+  - Make sure your phone and computer are on the *same LAN*.
+  - Run with `npx expo start --tunnel`.
