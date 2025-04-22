@@ -2,7 +2,7 @@
 The Upcycle Build application aims to assist those who work in the reuse industry by managing their work all in one place. The app has 3 main functionalities:
 1) An activity calendar
 2) A filterable list of inventory
-3) A donation form that logs materials into said inventory
+3) A donation form that logs materials into inventory
 
 Each of these parts makes up an app that provides a quality-of-life service to all of those working in this industry. It enables them to get work done with increased efficiency, which is critical for the fast-paced environment they work in.
 
