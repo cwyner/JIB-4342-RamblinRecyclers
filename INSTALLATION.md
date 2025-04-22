@@ -43,7 +43,7 @@ Your project directory should now contain the `ios/` and `android/` directories.
 
 4. **Update config**
    - Starting from the root directory, navigate to `app/_layout.tsx`, and replace the code below with your project credentials:
-     `
+     ```typescript
       const firebaseConfig = {
         apiKey: 'YOUR_API_KEY',
         authDomain: 'YOUR_DOMAIN.firebaseapp.com',
@@ -52,7 +52,7 @@ Your project directory should now contain the `ios/` and `android/` directories.
         messagingSenderId: 'SENDER_ID',
         appId: 'APP_ID',
       };
-     `
+     ```
 ## Running the app
 *If you plan on using a simulator make sure you have followed the instructions for Android Studio and/or Xcode.* \
 *If you want to run the app directly on your phone follow the directions for Expo Go*
