@@ -55,7 +55,7 @@ Your project directory should now contain the `ios/` and `android/` directories.
      ```
 ## Running the app
 *If you plan on using a simulator make sure you have followed the instructions for Android Studio and/or Xcode.* \
-*If you want to run the app directly on your phone follow the directions for Expo Go*
+*If you want to run the app directly on your phone follow the directions for Expo Go* \
 ***All the above scenarios are either/or, so you can use Expo Go, an Android virtual device, or an iOS simulator.***
 
 ### Running with Expo Go
