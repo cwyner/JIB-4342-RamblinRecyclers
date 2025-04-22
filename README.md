@@ -64,9 +64,7 @@ Each of these parts makes up an app that provides a critical service to all of t
 - Fixed bug where user could not scroll to see full materials list
 
 ### Installation Guide
-Click [here](https://github.com/cwyner/JIB-4342-RamblinRecyclers/blob/riechert-arthur-installation-guide-1/INSTALLATION.md) to go to the installation guide that will get you started with running this app on your machine:
+Click [here](https://github.com/cwyner/JIB-4342-RamblinRecyclers/blob/riechert-arthur-installation-guide-1/INSTALLATION.md) to go to the installation guide that will get you started with running this app on your machine.
 
 ### Detailed Design Document
-Attached here is a link to the detailed design document for our app, providing a deep dive into the design choices we made along the way:
-
-(https://github.com/cwyner/JIB-4342-RamblinRecyclers/blob/1ebd4ae66becac214cad053951aa13e3e04b4765/Detailed%20Design%20Document%20-%20JIB%204342.pdf)
+Click [here](https://github.com/cwyner/JIB-4342-RamblinRecyclers/blob/1ebd4ae66becac214cad053951aa13e3e04b4765/Detailed%20Design%20Document%20-%20JIB%204342.pdf) to view our detailed design document, providing insight into the team's design choices for the app.
